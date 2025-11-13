@@ -53,9 +53,10 @@ docker-compose up --build
 ```
 
 This will:
-- Build the Rails API service container
+- Build the Node.js service container
 - Build the test container
-- Start the Rails API server on port 3000
+- Start Redis for BullMQ job queue
+- Start the Node.js API server on port 3000
 - Start the MCP server on port 3001 (if configured)
 
 ### 4. Verify Health
@@ -209,25 +210,25 @@ ssh -L 3001:localhost:3001 user@remote-server
 ### Run Unit Tests
 
 ```bash
-docker-compose run --rm test bundle exec rspec spec/unit
+docker-compose run --rm test npm run test:unit
 ```
 
 ### Run Integration Tests
 
 ```bash
-docker-compose run --rm test bundle exec rspec spec/integration
+docker-compose run --rm test npm run test:integration
 ```
 
 ### Run E2E Tests
 
 ```bash
-docker-compose run --rm test bundle exec rspec spec/e2e
+docker-compose run --rm test npm run test:e2e
 ```
 
 ### Run All Tests
 
 ```bash
-docker-compose run --rm test bundle exec rspec
+docker-compose run --rm test npm test
 ```
 
 ## Troubleshooting
@@ -237,6 +238,7 @@ docker-compose run --rm test bundle exec rspec
 1. Check Docker logs:
 ```bash
 docker-compose logs api
+docker-compose logs redis
 ```
 
 2. Verify environment variables:
@@ -246,7 +248,12 @@ docker-compose exec api env | grep -E "API_KEYS|MAX_CONCURRENT"
 
 3. Check port availability:
 ```bash
-netstat -tuln | grep -E "3000|3001"
+netstat -tuln | grep -E "3000|3001|6379"
+```
+
+4. Verify Redis connection:
+```bash
+docker-compose exec redis redis-cli ping
 ```
 
 ### Analysis Jobs Failing
@@ -263,7 +270,7 @@ docker-compose logs -f api
 
 3. Verify Playwright browsers are installed:
 ```bash
-docker-compose exec api bundle exec playwright install
+docker-compose exec api npx playwright install
 ```
 
 ### MCP Connection Issues
@@ -300,8 +307,9 @@ docker-compose logs -f api | grep mcp
 | `MCP_PORT` | No | 3001 | MCP server port |
 | `DESIGNS_DIR` | No | `./designs` | Directory for storing design system files |
 | `LOG_LEVEL` | No | `info` | Logging level (`debug`, `info`, `warn`, `error`) |
-| `RAILS_ENV` | No | `production` | Rails environment |
-| `DATABASE_URL` | No | `sqlite3:./db/queue.sqlite3` | Solid Queue database URL |
+| `NODE_ENV` | No | `production` | Node.js environment |
+| `REDIS_URL` | No | `redis://redis:6379` | Redis connection URL for BullMQ |
+| `PORT` | No | 3000 | HTTP API server port |
 
 ## Support
 

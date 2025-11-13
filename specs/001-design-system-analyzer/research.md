@@ -3,61 +3,67 @@
 **Date**: 2025-11-13  
 **Purpose**: Resolve all "NEEDS CLARIFICATION" items from Technical Context
 
-## 1. Ruby and Rails Versions
+## 1. Node.js and TypeScript Versions
 
 ### Decision
-- **Ruby**: 3.3.0 (latest stable as of 2024)
-- **Rails**: 7.2.0 (latest stable as of 2024)
+- **Node.js**: 20.x LTS (latest LTS as of 2024)
+- **TypeScript**: 5.5.x (latest stable as of 2024)
 
 ### Rationale
-- Ruby 3.3.0 provides performance improvements, better memory management, and YJIT improvements
-- Rails 7.2.0 includes Solid Queue (native background job processing), improved API mode, and better async support
+- Node.js 20.x LTS provides long-term support, stability, and performance improvements
+- TypeScript 5.5.x offers excellent type safety, modern language features, and tooling
 - Both versions are production-ready and widely adopted
 - Docker containers allow precise version pinning
+- Native async/await support perfect for I/O-intensive operations
 
 ### Alternatives Considered
-- Ruby 3.2.x: Stable but missing latest performance improvements
-- Rails 7.1.x: Stable but missing Solid Queue integration
-- Ruby 3.4+ / Rails 8.0+: Too new, may have compatibility issues
+- Node.js 18.x LTS: Stable but missing latest performance improvements
+- Node.js 22.x: Too new, may have compatibility issues
+- JavaScript without TypeScript: Lacks type safety, harder to maintain
 
 ## 2. Playwright Integration
 
 ### Decision
-- **Library**: `playwright-ruby` gem (official Ruby binding for Playwright)
-- **Installation**: Requires Node.js and Playwright browsers in Docker container
+- **Library**: `playwright` npm package (official Node.js package)
+- **Installation**: Native npm package, no additional runtime needed
 
 ### Rationale
-- `playwright-ruby` is the official Ruby binding maintained by Microsoft Playwright team
-- Provides native Ruby API while using Node.js Playwright under the hood
-- Better integration with Ruby codebase than shelling out to Node.js scripts
-- Supports all Playwright features (browser automation, screenshots, network interception)
+- `playwright` is the official Node.js package maintained by Microsoft Playwright team
+- Native integration - no bindings or wrappers needed
+- Best performance and feature support
+- Direct access to all Playwright APIs
+- Active development and updates
+- Excellent TypeScript support with type definitions
 
 ### Alternatives Considered
-- Shelling out to Node.js Playwright: More complex error handling, harder to integrate
-- Capybara with Selenium: Less modern, heavier, doesn't support modern browser features as well
-- Puppeteer Ruby gem: Less maintained, Playwright is the successor
+- Puppeteer: Less maintained, Playwright is the successor with better features
+- Selenium: Older, heavier, less modern browser support
+- Playwright via Ruby/Python bindings: Adds unnecessary abstraction layer
 
 ### Implementation Notes
-- Docker container must include Node.js runtime and Playwright browsers
-- Use `playwright-ruby` gem with `playwright install` command in Dockerfile
-- Consider headless browser mode for containerized environment
+- Use `npm install playwright` or `yarn add playwright`
+- Run `npx playwright install` to install browser binaries
+- Use headless mode for containerized environment
+- Leverage TypeScript types for better IDE support
 
 ## 3. MCP Server Implementation
 
 ### Decision
-- **Approach**: Custom MCP server implementation in Ruby
+- **Approach**: Custom MCP server implementation in TypeScript
 - **Protocol**: Model Context Protocol (MCP) over HTTP/HTTPS and stdio transports
+- **Library**: Custom implementation using JSON-RPC 2.0
 
 ### Rationale
-- No mature Ruby MCP server library exists as of 2024
-- MCP protocol is JSON-RPC based, relatively straightforward to implement
+- MCP protocol is JSON-RPC based, straightforward to implement in TypeScript
+- TypeScript provides type safety for protocol messages
 - Custom implementation allows full control over transport (HTTP/HTTPS/stdio)
-- Can leverage existing Rails infrastructure (routing, middleware, authentication)
+- Can leverage existing Node.js HTTP infrastructure (Express/Fastify)
+- Better integration with Cursor IDE (which is also TypeScript-based)
 
 ### Alternatives Considered
-- Waiting for Ruby MCP library: Unclear timeline, blocks development
-- Using Node.js MCP server: Adds complexity, requires separate service
+- Using existing MCP library: May exist in JS ecosystem, but custom gives full control
 - Using Python MCP server: Adds another language/runtime dependency
+- Waiting for official MCP library: Unclear timeline, blocks development
 
 ### Implementation Notes
 - Implement MCP protocol handlers for:
@@ -68,91 +74,104 @@
 - Support both HTTP/HTTPS (network) and stdio (SSH tunnel) transports
 - Use JSON-RPC 2.0 specification for request/response format
 - API key authentication required for all MCP requests
+- TypeScript interfaces for type-safe protocol messages
 
 ## 4. Background Job Processing
 
 ### Decision
-- **Library**: Solid Queue (Rails 7.2 native background job processor)
+- **Library**: BullMQ with Redis
 
 ### Rationale
-- Native Rails 7.2 integration, no external dependencies (Redis, PostgreSQL)
-- File-based or database-backed job storage (can use SQLite for simplicity)
-- Built-in job prioritization and concurrency control
-- Simpler deployment (no Redis dependency)
-- Sufficient for this use case (configurable concurrent limit, job queuing)
+- BullMQ is the modern, TypeScript-first successor to Bull
+- Excellent performance and reliability
+- Built-in job prioritization, rate limiting, and concurrency control
+- Redis provides persistent job storage and distributed processing
+- Perfect for configurable concurrent job limits
+- TypeScript support with full type definitions
+- Active development and large community
 
 ### Alternatives Considered
-- **Sidekiq**: More mature, requires Redis, better for high-volume scenarios
-  - Rejected: Adds Redis dependency, overkill for this use case
-- **ActiveJob with async adapter**: Too simple, no persistence, jobs lost on restart
-  - Rejected: Not suitable for long-running analysis jobs
-- **Delayed Job**: Older, less maintained
-  - Rejected: Solid Queue is the modern replacement
+- **Bull (legacy)**: Older version, BullMQ is the recommended successor
+- **Agenda.js**: MongoDB-based, adds database dependency
+- **Bee-Queue**: Simpler but less features, no built-in rate limiting
+- **In-memory queue**: Not suitable for production, jobs lost on restart
+  - Rejected: Need persistence for long-running analysis jobs
 
 ### Implementation Notes
-- Use Solid Queue for async analysis job processing
+- Use BullMQ with Redis for job queue
 - Configure maximum concurrent jobs via environment variable
-- Jobs stored in database (SQLite for simplicity, can upgrade to PostgreSQL)
-- Job status tracking in-memory or file-based (deleted after completion per spec)
+- Jobs stored in Redis (persistent, can survive restarts)
+- Job status tracking in Redis (deleted after completion per spec)
+- Separate worker processes can be scaled independently
 
-## 5. HTTP Server
+## 5. HTTP Server Framework
 
 ### Decision
-- **Server**: Puma (Rails default)
+- **Framework**: Express.js with TypeScript
 
 ### Rationale
-- Default Rails web server, well-tested and production-ready
-- Supports concurrent request handling (threads + processes)
+- Most popular and mature Node.js web framework
+- Excellent TypeScript support
+- Large ecosystem of middleware
+- Simple and flexible
+- Well-documented
 - Good performance for API workloads
-- Easy configuration via `config/puma.rb`
-- Supports both HTTP and HTTPS (via reverse proxy or direct TLS)
+- Easy to add CORS, authentication middleware
 
 ### Alternatives Considered
-- **Unicorn**: Process-based, no threads, less efficient for I/O-bound workloads
-  - Rejected: Puma's thread pool better for API + background jobs
-- **Passenger**: More complex, requires additional setup
-  - Rejected: Puma is simpler and sufficient
+- **Fastify**: Faster, but smaller ecosystem, less familiar to most developers
+  - Could be considered for future optimization
+- **NestJS**: More opinionated, adds complexity, overkill for this API
+- **Koa**: More modern, but Express is more widely adopted
 
 ### Implementation Notes
-- Configure Puma for production (threads, workers)
-- Use reverse proxy (nginx/traefik) for HTTPS termination if needed
-- Or configure Puma with SSL certificates directly for HTTPS
+- Use Express with TypeScript
+- Add middleware for:
+  - CORS support
+  - JSON body parsing
+  - API key authentication
+  - Request logging with correlation IDs
+  - Error handling
+- Use TypeScript for type-safe route handlers
 
 ## 6. Testing Framework
 
 ### Decision
-- **Framework**: RSpec with supporting libraries
+- **Framework**: Jest with TypeScript support
 
 ### Rationale
-- Most popular testing framework for Rails applications
-- Better syntax and DSL for API testing
-- Rich ecosystem of matchers and helpers
-- Better integration with Rails testing features
-- Widely used in Rails community
-
-### Alternatives Considered
-- **Minitest**: Rails default, simpler, less DSL
-  - Rejected: RSpec provides better readability and ecosystem for API testing
-- **Test::Unit**: Older, less feature-rich
-  - Rejected: RSpec is more modern and widely adopted
+- Most popular testing framework for Node.js
+- Excellent TypeScript support
+- Built-in mocking, assertions, and test runners
+- Good integration with Playwright for E2E tests
+- Large ecosystem and community
+- Well-documented
 
 ### Supporting Libraries
-- `rspec-rails` - RSpec integration for Rails
-- `factory_bot_rails` - Test data factories
-- `shoulda-matchers` - Additional matchers
-- `webmock` / `vcr` - HTTP request stubbing for external website testing
-- Playwright for E2E browser tests (in test container)
+- `jest` - Test framework
+- `@types/jest` - TypeScript types for Jest
+- `ts-jest` - TypeScript preprocessor for Jest
+- `supertest` - HTTP assertion library for API testing
+- `playwright` - For E2E browser automation tests
+- `@playwright/test` - Playwright test runner
+
+### Alternatives Considered
+- **Mocha + Chai**: More flexible but requires more setup
+- **Vitest**: Faster, but newer, smaller ecosystem
+- **Ava**: Simpler, but less features
 
 ## 7. Observability and Logging
 
 ### Decision
 - **Logging Format**: Structured JSON logging
+- **Library**: `pino` (fast JSON logger) or `winston`
 - **Trace IDs**: Request correlation IDs (UUID-based)
 - **Health Checks**: `/health` endpoint with service status
 - **Metrics**: Basic metrics via logging (can add Prometheus later if needed)
 
 ### Rationale
 - JSON logs are machine-parseable and work well with log aggregation tools
+- `pino` is one of the fastest Node.js loggers, perfect for high-throughput APIs
 - Correlation IDs allow tracking requests through async job processing
 - Health checks required for container orchestration and monitoring
 - Start simple, add metrics infrastructure later if needed
@@ -160,13 +179,14 @@
 ### Implementation Details
 
 #### Structured Logging
-- Use `lograge` gem for structured JSON logging
+- Use `pino` for structured JSON logging
 - Include: timestamp, level, message, request_id, job_id, user_id (if applicable)
-- Format: JSON for production, human-readable for development
+- Format: JSON for production, pretty-printed for development
+- Use `pino-http` middleware for automatic request logging
 
 #### Trace/Correlation IDs
 - Generate UUID for each incoming request (stored in `X-Request-ID` header or generated)
-- Pass correlation ID to background jobs
+- Pass correlation ID to background jobs via job metadata
 - Include correlation ID in all log entries
 - Allow clients to provide correlation ID via header
 
@@ -177,26 +197,48 @@
 
 #### Metrics (Future)
 - Log key metrics: request duration, job duration, error rates
-- Can add Prometheus exporter later if needed
+- Can add Prometheus exporter (`prom-client`) later if needed
 - For now, metrics can be extracted from structured logs
 
 ### Alternatives Considered
-- **Structured logging libraries**: `lograge` is standard for Rails
+- **Winston**: More features, but slower than pino
+- **Bunyan**: Good, but pino is faster and more modern
 - **APM tools** (New Relic, Datadog): Overkill for initial implementation
   - Can add later if needed
 - **Prometheus metrics**: Adds complexity, defer to later phase
+
+## 8. Project Structure and Build Tools
+
+### Decision
+- **Package Manager**: npm or yarn
+- **Build Tool**: TypeScript compiler (`tsc`) or `tsx` for development
+- **Linting**: ESLint with TypeScript plugin
+- **Formatting**: Prettier
+
+### Rationale
+- npm/yarn are standard for Node.js projects
+- TypeScript compiler is mature and reliable
+- ESLint + Prettier provide code quality and consistency
+- Standard tooling familiar to most Node.js developers
+
+### Implementation Notes
+- Use `tsconfig.json` for TypeScript configuration
+- Use `eslint` with `@typescript-eslint/parser` and `@typescript-eslint/eslint-plugin`
+- Use `prettier` for code formatting
+- Use `tsx` or `ts-node` for development (direct TypeScript execution)
+- Build to `dist/` directory for production
 
 ## Summary
 
 All "NEEDS CLARIFICATION" items have been resolved with concrete technology choices:
 
-1. ✅ Ruby 3.3.0, Rails 7.2.0
-2. ✅ `playwright-ruby` gem with Node.js runtime
-3. ✅ Custom MCP server implementation in Ruby
-4. ✅ Solid Queue for background jobs
-5. ✅ Puma HTTP server
-6. ✅ RSpec for testing
-7. ✅ Structured JSON logging with correlation IDs, `/health` endpoint
+1. ✅ Node.js 20.x LTS, TypeScript 5.5.x
+2. ✅ Native `playwright` npm package
+3. ✅ Custom MCP server implementation in TypeScript
+4. ✅ BullMQ with Redis for background jobs
+5. ✅ Express.js for HTTP server
+6. ✅ Jest for testing
+7. ✅ Pino for structured JSON logging with correlation IDs, `/health` endpoint
+8. ✅ Standard Node.js tooling (npm/yarn, ESLint, Prettier)
 
-All decisions align with Rails best practices, minimize external dependencies, and support the requirements for containerized deployment, async processing, and MCP server functionality.
-
+All decisions align with Node.js/TypeScript best practices, leverage native Playwright integration, and support the requirements for containerized deployment, async processing, and MCP server functionality.
