@@ -20,11 +20,32 @@ worker.on('completed', (job) => {
 });
 
 worker.on('failed', (job, err) => {
-  logger.error({ jobId: job?.id, error: err }, 'Analysis job failed');
+  logger.error(
+    {
+      jobId: job?.id,
+      error: {
+        message: err?.message,
+        stack: err?.stack,
+        name: err?.name,
+        code: (err as any)?.code,
+      },
+    },
+    'Analysis job failed'
+  );
 });
 
 worker.on('error', (err) => {
-  logger.error({ error: err }, 'Worker error');
+  logger.error(
+    {
+      error: {
+        message: err?.message,
+        stack: err?.stack,
+        name: err?.name,
+        code: (err as any)?.code,
+      },
+    },
+    'Worker error'
+  );
 });
 
 logger.info({ maxConcurrentJobs }, 'BullMQ worker started');

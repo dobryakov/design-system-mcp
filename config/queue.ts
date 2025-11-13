@@ -29,7 +29,14 @@ function parseRedisUrl(url: string): ConnectionOptions {
 export const redisConnection: ConnectionOptions = parseRedisUrl(redisUrl);
 
 // Create a Redis client instance for direct use if needed
-export const redisClient = new Redis(redisUrl);
+// Use parsed connection options to ensure correct host/port
+const connectionOptions = redisConnection as { host?: string; port?: number; maxRetriesPerRequest?: number; retryStrategy?: (times: number) => number | null };
+export const redisClient = new Redis({
+  host: connectionOptions.host || 'redis',
+  port: connectionOptions.port || 6379,
+  maxRetriesPerRequest: connectionOptions.maxRetriesPerRequest || 3,
+  retryStrategy: connectionOptions.retryStrategy,
+});
 
 export const queueConfig = {
   connection: redisConnection,
