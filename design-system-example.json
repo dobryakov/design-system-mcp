@@ -1,0 +1,163 @@
+{
+  "$schema": "https://design-tokens.org/schema/v1.1.json",
+  "metadata": {
+    "name": "Astra Design System",
+    "version": "3.5.2",
+    "author": "UX Platform Team",
+    "description": "Многоуровневая система токенов для web, mobile и design-платформ (Figma, iOS, Android, CSS)",
+    "lastModified": "2025-10-20T12:45:00Z"
+    },
+  "group": "tokens",
+  "aliases": {
+    "brand-blue": "#0055FF",
+    "brand-orange": "#FF7A00",
+    "brand-gray-100": "#F9FAFB",
+    "brand-gray-900": "#111827"
+  },
+  "global": {
+    "color": {
+      "base": {
+        "blue": {
+          "50": { "value": "#EBF3FF" },
+          "100": { "value": "#CCE0FF" },
+          "500": { "value": "{aliases.brand-blue}" },
+          "700": { "value": "#0040CC" }
+        },
+        "orange": {
+          "50": { "value": "#FFF5EB" },
+          "100": { "value": "#FFE0CC" },
+          "500": { "value": "{aliases.brand-orange}" }
+        },
+        "gray": {
+          "100": { "value": "{aliases.brand-gray-100}" },
+          "500": { "value": "#6B7280" },
+          "900": { "value": "{aliases.brand-gray-900}" }
+        },
+        "white": { "value": "#FFFFFF" },
+        "black": { "value": "#000000" }
+      }
+    },
+    "font": {
+      "family": {
+        "base": { "value": "'Inter', sans-serif" },
+        "heading": { "value": "'Poppins', sans-serif" },
+        "mono": { "value": "'Fira Code', monospace" }
+      },
+      "size": {
+        "xs": { "value": "12px" },
+        "sm": { "value": "14px" },
+        "md": { "value": "16px" },
+        "lg": { "value": "20px" },
+        "xl": { "value": "24px" }
+      },
+      "weight": {
+        "regular": { "value": 400 },
+        "medium": { "value": 500 },
+        "bold": { "value": 700 }
+      },
+      "lineHeight": {
+        "tight": { "value": 1.2 },
+        "normal": { "value": 1.5 },
+        "loose": { "value": 1.75 }
+      }
+    },
+    "radius": {
+      "sm": { "value": "4px" },
+      "md": { "value": "8px" },
+      "lg": { "value": "16px" },
+      "full": { "value": "9999px" }
+    },
+    "shadow": {
+      "sm": {
+        "type": "dropShadow",
+        "value": [
+          { "x": 0, "y": 1, "blur": 2, "spread": 0, "color": "rgba(0,0,0,0.05)" }
+        ]
+      },
+      "md": {
+        "type": "dropShadow",
+        "value": [
+          { "x": 0, "y": 4, "blur": 6, "spread": 0, "color": "rgba(0,0,0,0.1)" }
+        ]
+      }
+    }
+  },
+  "themes": {
+    "light": {
+      "color": {
+        "background": { "value": "{global.color.base.white}" },
+        "surface": { "value": "{global.color.base.gray.100}" },
+        "text": {
+          "primary": { "value": "{global.color.base.gray.900}" },
+          "secondary": { "value": "{global.color.base.gray.500}" },
+          "inverse": { "value": "{global.color.base.white}" }
+        },
+        "accent": {
+          "default": { "value": "{global.color.base.blue.500}" },
+          "hover": { "value": "{global.color.base.blue.700}" }
+        }
+      }
+    },
+    "dark": {
+      "color": {
+        "background": { "value": "{global.color.base.gray.900}" },
+        "surface": { "value": "#1E293B" },
+        "text": {
+          "primary": { "value": "{global.color.base.gray.100}" },
+          "secondary": { "value": "#CBD5E1" },
+          "inverse": { "value": "{global.color.base.gray.900}" }
+        },
+        "accent": {
+          "default": { "value": "#60A5FA" },
+          "hover": { "value": "#3B82F6" }
+        }
+      }
+    }
+  },
+  "component": {
+    "button": {
+      "base": {
+        "fontFamily": { "value": "{global.font.family.base}" },
+        "fontSize": { "value": "{global.font.size.md}" },
+        "fontWeight": { "value": "{global.font.weight.medium}" },
+        "borderRadius": { "value": "{global.radius.md}" },
+        "paddingVertical": { "value": "8px" },
+        "paddingHorizontal": { "value": "16px" }
+      },
+      "variant": {
+        "primary": {
+          "background": { "value": "{themes.light.color.accent.default}" },
+          "color": { "value": "{themes.light.color.text.inverse}" },
+          "hover": { "background": { "value": "{themes.light.color.accent.hover}" } },
+          "disabled": {
+            "background": { "value": "{global.color.base.gray.100}" },
+            "color": { "value": "{global.color.base.gray.500}" }
+          }
+        },
+        "secondary": {
+          "background": { "value": "transparent" },
+          "border": { "value": "1px solid {global.color.base.gray.500}" },
+          "color": { "value": "{themes.light.color.text.primary}" }
+        }
+      },
+      "state": {
+        "focus": {
+          "outline": { "value": "2px solid {themes.light.color.accent.default}" },
+          "outlineOffset": { "value": "2px" }
+        }
+      },
+      "size": {
+        "sm": {
+          "fontSize": { "value": "{global.font.size.sm}" },
+          "paddingVertical": { "value": "4px" },
+          "paddingHorizontal": { "value": "8px" }
+        },
+        "lg": {
+          "fontSize": { "value": "{global.font.size.lg}" },
+          "paddingVertical": { "value": "12px" },
+          "paddingHorizontal": { "value": "20px" }
+        }
+      }
+    }
+  }
+}
