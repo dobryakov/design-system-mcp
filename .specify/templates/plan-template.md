@@ -31,7 +31,15 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Verify compliance with the project constitution (`.specify/memory/constitution.md`):
+
+- **Principle I (Microservice Architecture)**: Does this feature align with REST API design, idempotency, and proper HTTP status codes?
+- **Principle II (Containerization)**: Will all components run in containers via `docker-compose.yml`? Are host dependencies avoided?
+- **Principle III (Observability)**: Are structured logging, trace IDs, and health-check endpoints planned?
+- **Principle IV (Configuration & Documentation)**: Will all configs use `.env`? Is documentation (README, `curl` examples) planned?
+- **Principle V (Testing)**: Are unit, integration, and load tests planned? Will tests run in appropriate containers?
+
+Any violations must be justified in the Complexity Tracking table below.
 
 ## Project Structure
 
