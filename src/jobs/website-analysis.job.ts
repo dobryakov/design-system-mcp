@@ -85,10 +85,24 @@ export async function processWebsiteAnalysis(job: Job<JobData>): Promise<void> {
     // Navigate to URL
     logger.debug(logContext, 'Navigating to URL');
     try {
-      await page.goto(url, {
-        waitUntil: 'networkidle',
-        timeout: ANALYSIS_TIMEOUT,
-      });
+      // Try networkidle first, but with a shorter timeout
+      // If it times out, fall back to 'load' which waits for page load event
+      const networkIdleTimeout = Math.min(ANALYSIS_TIMEOUT, 30000); // Max 30s for networkidle
+      try {
+        await page.goto(url, {
+          waitUntil: 'networkidle',
+          timeout: networkIdleTimeout,
+        });
+        logger.debug(logContext, 'Page loaded with networkidle');
+      } catch (networkIdleError) {
+        // If networkidle times out, try with 'load' instead
+        logger.warn(logContext, 'networkidle timeout, falling back to load');
+        await page.goto(url, {
+          waitUntil: 'load',
+          timeout: ANALYSIS_TIMEOUT - networkIdleTimeout,
+        });
+        logger.debug(logContext, 'Page loaded with load event');
+      }
     } catch (error) {
       if (error instanceof Error && error.message.includes('timeout')) {
         throw new Error(`Website load timeout: Page took longer than ${ANALYSIS_TIMEOUT}ms to load`);
