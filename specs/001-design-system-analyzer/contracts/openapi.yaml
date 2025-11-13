@@ -1,0 +1,317 @@
+openapi: 3.0.3
+info:
+  title: Design System Analyzer API
+  description: |
+    API for analyzing websites and extracting design systems. Provides asynchronous
+    analysis jobs and status tracking.
+  version: 1.0.0
+  contact:
+    name: Design System Analyzer
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+  - url: https://api.example.com
+    description: Production server
+
+security:
+  - ApiKeyAuth: []
+
+tags:
+  - name: Analysis
+    description: Website analysis operations
+  - name: Status
+    description: Job status tracking
+  - name: Health
+    description: Service health checks
+
+paths:
+  /analyze:
+    post:
+      tags:
+        - Analysis
+      summary: Submit website analysis request
+      description: |
+        Submits a request to analyze a website and extract its design system.
+        Returns immediately with a job identifier. Analysis runs asynchronously.
+      operationId: submitAnalysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+            examples:
+              basic:
+                summary: Basic analysis request
+                value:
+                  site_name: "example"
+                  url: "https://example.com"
+      responses:
+        '202':
+          description: Analysis job accepted
+          headers:
+            X-Request-ID:
+              description: Request correlation ID
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+        '400':
+          description: Invalid request (missing fields, invalid URL format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (missing or invalid API key)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests (rate limit exceeded)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /status/{job_id}:
+    get:
+      tags:
+        - Status
+      summary: Get analysis job status
+      description: |
+        Retrieves the current status of an analysis job. Job status information
+        is deleted immediately after the job reaches completed or failed status.
+      operationId: getJobStatus
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          description: Job identifier returned from /analyze endpoint
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Job status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatus'
+        '401':
+          description: Unauthorized (missing or invalid API key)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Job not found (job completed/failed and was deleted, or invalid job ID)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check endpoint
+      description: |
+        Returns service health status. Used for monitoring and container health checks.
+      operationId: getHealth
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+  schemas:
+    AnalysisRequest:
+      type: object
+      required:
+        - site_name
+        - url
+      properties:
+        site_name:
+          type: string
+          description: Name identifier for the design system (filesystem-safe)
+          pattern: '^[a-zA-Z0-9_-]+$'
+          minLength: 1
+          maxLength: 255
+          example: "example"
+        url:
+          type: string
+          format: uri
+          description: Website URL to analyze (must be HTTP or HTTPS)
+          example: "https://example.com"
+
+    AnalysisResponse:
+      type: object
+      required:
+        - job_id
+        - status
+        - message
+      properties:
+        job_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the analysis job
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [pending, queued]
+          description: Initial job status
+          example: "pending"
+        message:
+          type: string
+          description: Human-readable status message
+          example: "Analysis job submitted successfully"
+        correlation_id:
+          type: string
+          format: uuid
+          description: Request correlation ID for tracing
+          example: "550e8400-e29b-41d4-a716-446655440001"
+
+    JobStatus:
+      type: object
+      required:
+        - job_id
+        - status
+      properties:
+        job_id:
+          type: string
+          format: uuid
+          description: Job identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [pending, queued, in-progress, completed, failed]
+          description: Current job status
+          example: "in-progress"
+        site_name:
+          type: string
+          description: Site name from analysis request
+          example: "example"
+        url:
+          type: string
+          format: uri
+          description: Website URL being analyzed
+          example: "https://example.com"
+        submitted_at:
+          type: string
+          format: date-time
+          description: Job submission timestamp (ISO 8601)
+          example: "2025-11-13T10:00:00Z"
+        started_at:
+          type: string
+          format: date-time
+          description: Job processing start timestamp (ISO 8601, present if status is in-progress or completed)
+          example: "2025-11-13T10:00:05Z"
+        completed_at:
+          type: string
+          format: date-time
+          description: Job completion timestamp (ISO 8601, present if status is completed or failed)
+          example: "2025-11-13T10:00:45Z"
+        result_location:
+          type: string
+          description: Path to generated design system file (present if status is completed)
+          example: "designs/example/design-system.json"
+        error_message:
+          type: string
+          description: Error details (present if status is failed)
+          example: "Website inaccessible: Connection timeout"
+
+    HealthStatus:
+      type: object
+      required:
+        - status
+        - service
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+          description: Overall service health status
+          example: "healthy"
+        service:
+          type: string
+          description: Service name
+          example: "design-system-analyzer"
+        version:
+          type: string
+          description: Service version
+          example: "1.0.0"
+        uptime_seconds:
+          type: integer
+          description: Service uptime in seconds
+          example: 3600
+        queue_depth:
+          type: integer
+          description: Number of queued analysis jobs
+          example: 2
+        active_jobs:
+          type: integer
+          description: Number of currently processing analysis jobs
+          example: 1
+        max_concurrent_jobs:
+          type: integer
+          description: Maximum concurrent analysis jobs (from configuration)
+          example: 5
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code/type
+          example: "invalid_request"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Invalid URL format"
+        details:
+          type: object
+          description: Additional error details (field-specific validation errors, etc.)
+          additionalProperties: true
+        correlation_id:
+          type: string
+          format: uuid
+          description: Request correlation ID for tracing
+          example: "550e8400-e29b-41d4-a716-446655440001"
+

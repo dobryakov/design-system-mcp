@@ -1,0 +1,30 @@
+# design-system-mcp Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-11-13
+
+## Active Technologies
+
+- Ruby 3.3.0, Rails 7.2.0 (001-design-system-analyzer)
+
+## Project Structure
+
+```text
+backend/
+frontend/
+tests/
+```
+
+## Commands
+
+# Add commands for Ruby 3.3.0, Rails 7.2.0
+
+## Code Style
+
+Ruby 3.3.0, Rails 7.2.0: Follow standard conventions
+
+## Recent Changes
+
+- 001-design-system-analyzer: Added Ruby 3.3.0, Rails 7.2.0
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->
