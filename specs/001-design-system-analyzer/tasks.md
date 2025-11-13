@@ -58,6 +58,12 @@
 - [ ] T023 [P] Create TypeScript types for MCP protocol in src/types/mcp.ts
 - [ ] T024 Create health check endpoint GET /health in src/routes/health.ts
 - [ ] T025 Create designs directory structure with volume mount configuration in docker-compose.yml
+- [ ] T025A [P] Create test fixture HTML page with basic components (buttons, forms, colors, typography) in tests/fixtures/pages/basic.html
+- [ ] T025B [P] Create test fixture HTML page with Bootstrap components in tests/fixtures/pages/bootstrap.html
+- [ ] T025C [P] Create test fixture HTML page with Material-UI components in tests/fixtures/pages/material-ui.html
+- [ ] T025D [P] Create test fixture HTML page with minimal styling for edge case testing in tests/fixtures/pages/minimal.html
+- [ ] T025E [P] Create test HTTP server for serving fixture pages during E2E tests in tests/fixtures/server.ts
+- [ ] T025F [P] Configure test server startup/shutdown in Playwright test setup in tests/e2e/playwright/global-setup.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,6 +74,16 @@
 **Goal**: Users can submit a website URL and receive an immediate 202 Accepted response. Analysis jobs complete and status endpoint returns "completed" status within 60 seconds for typical single-page websites. The system analyzes only the provided URL page (no crawling).
 
 **Independent Test**: Submit a POST request with a valid website URL and verify that a design system JSON file is generated in the expected location. The test delivers value by proving the system can automatically extract design tokens from websites without manual intervention.
+
+### E2E Tests for User Story 1
+
+- [ ] T025G [P] [US1] Create E2E test for basic page analysis in tests/e2e/playwright/analyze-basic.test.ts
+- [ ] T025H [P] [US1] Create E2E test for Bootstrap component detection in tests/e2e/playwright/analyze-bootstrap.test.ts
+- [ ] T025I [P] [US1] Create E2E test for Material-UI component detection in tests/e2e/playwright/analyze-material-ui.test.ts
+- [ ] T025J [P] [US1] Create E2E test for minimal page edge case in tests/e2e/playwright/analyze-minimal.test.ts
+- [ ] T025K [P] [US1] Create E2E test for error handling (invalid URL, timeout) in tests/e2e/playwright/analyze-errors.test.ts
+- [ ] T025L [P] [US1] Create E2E test for job status polling workflow in tests/e2e/playwright/job-status.test.ts
+- [ ] T025M [P] [US1] Create E2E test for concurrent job limit enforcement in tests/e2e/playwright/concurrent-jobs.test.ts
 
 ### Implementation for User Story 1
 
@@ -261,6 +277,21 @@
 ## Parallel Example: User Story 1
 
 ```bash
+# Launch all test fixtures in parallel (Phase 2):
+Task: "Create test fixture HTML page with basic components in tests/fixtures/pages/basic.html"
+Task: "Create test fixture HTML page with Bootstrap components in tests/fixtures/pages/bootstrap.html"
+Task: "Create test fixture HTML page with Material-UI components in tests/fixtures/pages/material-ui.html"
+Task: "Create test fixture HTML page with minimal styling in tests/fixtures/pages/minimal.html"
+
+# Launch all E2E tests in parallel (Phase 3):
+Task: "Create E2E test for basic page analysis in tests/e2e/playwright/analyze-basic.test.ts"
+Task: "Create E2E test for Bootstrap component detection in tests/e2e/playwright/analyze-bootstrap.test.ts"
+Task: "Create E2E test for Material-UI component detection in tests/e2e/playwright/analyze-material-ui.test.ts"
+Task: "Create E2E test for minimal page edge case in tests/e2e/playwright/analyze-minimal.test.ts"
+Task: "Create E2E test for error handling in tests/e2e/playwright/analyze-errors.test.ts"
+Task: "Create E2E test for job status polling workflow in tests/e2e/playwright/job-status.test.ts"
+Task: "Create E2E test for concurrent job limit enforcement in tests/e2e/playwright/concurrent-jobs.test.ts"
+
 # Launch all type definitions in parallel:
 Task: "Create TypeScript types for AnalysisJob in src/types/analysis-job.ts"
 Task: "Create TypeScript types for DesignSystem in src/types/design-system.ts"
