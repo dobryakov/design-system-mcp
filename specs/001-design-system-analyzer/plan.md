@@ -108,7 +108,7 @@ src/
 ├── jobs/
 │   └── website-analysis.job.ts        # BullMQ job processor
 ├── services/
-│   ├── design-system-extractor.ts     # Playwright-based extraction logic
+│   ├── design-system-extractor.ts     # Playwright-based extraction logic (includes library component detection)
 │   ├── design-token-analyzer.ts       # Token consolidation and analysis
 │   └── api-key-authenticator.ts       # API key validation
 ├── mcp/

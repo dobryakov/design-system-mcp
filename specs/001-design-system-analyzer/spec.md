@@ -23,12 +23,18 @@
 - Q: Этот проект будет запущен на удалённом сервере. Как к нему будет организован доступ из Cursor IDE по MCP? → A: MCP сервер доступен через HTTPS/TLS с обязательной аутентификацией по API ключу. Cursor IDE подключается к серверу через защищённое HTTPS соединение, либо через SSH туннель с локальным stdio подключением
 - Q: Учти вариант, что mcp-сервер может предоставляться по обычному http, а не только https → A: MCP сервер может работать через HTTP или HTTPS (настраивается через конфигурацию). API ключ обязателен для обоих вариантов. HTTP рекомендуется только для локальной разработки или внутренних сетей
 - Q: Сколько докер контейнеров будет? → A: Минимум 2 контейнера: основной Node.js сервис (HTTP API + MCP сервер + background workers) и тестовый контейнер. Возможна дополнительная декомпозиция: отдельный контейнер для background workers (BullMQ) с Redis, если требуется независимое масштабирование
+- Q: How should the system handle very large websites (hundreds of pages, thousands of elements)? → A: Limit analysis by time or element count, return partial result with warning
+- Q: How many pages will Playwright process for a single website? → A: Analyze only the provided URL page (single page analysis) — no crawling or multi-page traversal
+- Q: How are queued analysis jobs prioritized when capacity becomes available? → A: FIFO (First In, First Out) — jobs processed in order of submission
+- Q: What happens when multiple analysis requests for the same site_name are submitted simultaneously? → A: Process all requests — each creates separate job, last completed result overwrites file
+- Q: What happens when storage location for design systems is full or inaccessible? → A: Mark job as failed with clear error message about storage issue
+- Q: What happens when MAX_CONCURRENT_ANALYSES is set to zero or invalid value? → A: Service fails to start with error — service must not start if value is invalid
 
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Website Design System Extraction (Priority: P1)
 
-A user wants to automatically extract a design system from an existing website. They submit a website URL and a name for the design system. The system analyzes the website's visual and interactive elements, identifies design patterns (colors, typography, spacing, shadows, etc.), and generates a structured design system file that can be used for future development or design consistency.
+A user wants to automatically extract a design system from an existing website page. They submit a website URL (single page) and a name for the design system. The system analyzes the specified page's visual and interactive elements, identifies design patterns (colors, typography, spacing, shadows, etc.), and generates a structured design system file that can be used for future development or design consistency.
 
 **Why this priority**: This is the core functionality that enables the entire feature. Without the ability to analyze websites and extract design tokens, the MCP interface has nothing to work with. This must be implemented first as it provides immediate standalone value.
 
@@ -54,9 +60,11 @@ A user wants to automatically extract a design system from an existing website. 
 
 9. **Given** a website takes too long to load, **When** the analysis request times out, **Then** the status endpoint returns a failed status with a timeout error message.
 
-10. **Given** a developer wants to connect to MCP server on remote host, **When** they configure Cursor IDE with remote server address and API key, **Then** the connection is established via HTTP or HTTPS (depending on server configuration) and authenticated with the API key.
+10. **Given** a website uses components from a known design library (e.g., shadcn/ui, Bootstrap, Material-UI), **When** the analysis job processes the page, **Then** the system identifies library-specific component patterns through CSS class names, data attributes, and DOM structure analysis, and annotates the extracted components with their source library information in the design system JSON.
 
-11. **Given** MCP server is configured to use HTTP protocol, **When** a developer connects via HTTP, **Then** the connection succeeds and all requests require API key authentication.
+11. **Given** a developer wants to connect to MCP server on remote host, **When** they configure Cursor IDE with remote server address and API key, **Then** the connection is established via HTTP or HTTPS (depending on server configuration) and authenticated with the API key.
+
+12. **Given** MCP server is configured to use HTTP protocol, **When** a developer connects via HTTP, **Then** the connection succeeds and all requests require API key authentication.
 
 ---
 
@@ -126,23 +134,25 @@ A developer wants to connect Cursor IDE to the MCP server but needs clear instru
 - How does the system handle websites that are entirely JavaScript-rendered and take time to load?
 - What happens when a website uses inline styles exclusively instead of CSS classes?
 - How does the system handle websites with multiple color schemes or themes?
+- How does the system identify components from design libraries when CSS classes are minified or obfuscated?
+- What happens when a website uses multiple design libraries simultaneously (e.g., Bootstrap grid with shadcn/ui buttons)?
 - What happens when a design system file already exists but the analysis fails partway through?
-- How does the system handle very large websites with thousands of elements?
+- How does the system handle very large pages with thousands of elements? → A: Analysis is limited by configurable time or element count. Partial results are returned with a warning when limits are reached.
 - What happens when a website blocks automated browsing or requires CAPTCHA?
 - How does the system handle websites that are behind authentication walls?
 - What happens when a URL redirects multiple times or enters a redirect loop?
 - How does the system handle malformed or invalid JSON in the request body?
-- What happens when the storage location for design systems is full or inaccessible?
+- What happens when the storage location for design systems is full or inaccessible? → A: Job is marked as failed with clear error message indicating storage issue (disk full, inaccessible location, or permission error)
 - What happens when a request includes an invalid API key that doesn't match any configured environment variable values?
 - How does the system handle requests missing the API key entirely?
 - What happens when the service starts without any API keys configured in environment variables?
 - What happens when a user polls a status endpoint with an invalid or non-existent job identifier?
 - What happens when a user attempts to poll a status endpoint for a job that has already completed and been deleted?
 - How does the system handle status polling requests for jobs that were deleted after completion?
-- What happens when multiple analyses are submitted for the same site name simultaneously?
+- What happens when multiple analyses are submitted for the same site name simultaneously? → A: All requests are processed as separate jobs. Each job completes independently, and the last completed job's result overwrites the design system file.
 - What happens when the concurrent analysis limit is reached and additional requests are submitted?
-- How are queued analysis jobs prioritized when capacity becomes available (FIFO, priority, etc.)?
-- What happens when the maximum concurrent limit is set to zero or an invalid value via environment variable?
+- How are queued analysis jobs prioritized when capacity becomes available (FIFO, priority, etc.)? → A: FIFO (First In, First Out) order — jobs processed in order of submission
+- What happens when the maximum concurrent limit is set to zero or an invalid value via environment variable? → A: Service fails to start with error message. Service must not start if MAX_CONCURRENT_ANALYSES is zero, negative, or invalid.
 - What happens when a developer attempts to connect to MCP server without TLS/HTTPS when server is configured for HTTPS only?
 - How does the system handle MCP connection attempts from unauthorized network addresses?
 - What happens when SSH tunnel is established but API key authentication fails?
@@ -159,13 +169,13 @@ A developer wants to connect Cursor IDE to the MCP server but needs clear instru
 
 - **FR-003**: System MUST process analysis requests asynchronously, immediately returning 202 Accepted with a unique job identifier upon request validation.
 
-- **FR-004**: System MUST enforce a configurable maximum limit on concurrent analysis jobs (configurable via environment variable), queueing requests that exceed this limit and processing them when capacity becomes available.
+- **FR-004**: System MUST enforce a configurable maximum limit on concurrent analysis jobs (configurable via environment variable), queueing requests that exceed this limit and processing them when capacity becomes available. Queued jobs MUST be processed in FIFO (First In, First Out) order. The service MUST fail to start if MAX_CONCURRENT_ANALYSES is set to zero, negative, or invalid value, logging a clear error message.
 
 - **FR-005**: System MUST provide a status endpoint that accepts job identifiers and returns analysis status (pending, queued, in-progress, completed, failed) and result information when available. Job status information MUST be deleted immediately after a job reaches completed or failed status.
 
-- **FR-006**: System MUST analyze the provided website to identify all visual and interactive elements (buttons, input fields, links, forms, menus, cards, animations, etc.).
+- **FR-006**: System MUST analyze the provided website URL (single page) to identify all visual and interactive elements (buttons, input fields, links, forms, menus, cards, animations, etc.). The system analyzes only the specified URL page and does NOT crawl or traverse to other pages on the website. Playwright MUST use DOM traversal, CSS selector analysis, and computed style inspection to identify component boundaries and extract library-specific component patterns from popular design systems (shadcn/ui, reactbits, Bootstrap, Material-UI, Ant Design, Chakra UI, and similar libraries).
 
-- **FR-007**: System MUST extract design tokens including colors, fonts, sizes, border-radius values, spacing, box-shadow properties, and element states (hover, focus, active).
+- **FR-007**: System MUST extract design tokens including colors, fonts, sizes, border-radius values, spacing, box-shadow properties, and element states (hover, focus, active). When extracting components, Playwright MUST analyze CSS class names, data attributes (e.g., `data-*` attributes), and DOM structure patterns to identify components from known design libraries and extract their library-specific properties and variants.
 
 - **FR-008**: System MUST identify repeating patterns in the website (e.g., common button colors, shared shadow styles) and map them to design system tokens.
 
@@ -173,9 +183,13 @@ A developer wants to connect Cursor IDE to the MCP server but needs clear instru
 
 - **FR-010**: System MUST save generated design system files to a location organized by site name (e.g., `designs/<site-name>/design-system.json`).
 
-- **FR-011**: System MUST overwrite existing design system files when a new analysis job completes for the same site name.
+- **FR-011**: System MUST overwrite existing design system files when a new analysis job completes for the same site name. If multiple analysis jobs for the same site name are submitted simultaneously, each job MUST be processed independently, and the last completed job's result overwrites the design system file.
 
 - **FR-012**: System MUST detect and report errors for invalid URLs, inaccessible websites, timeout conditions, JavaScript errors, and bot protection mechanisms, marking the analysis job as failed with appropriate error details.
+
+- **FR-030**: System MUST detect storage failures (disk full, inaccessible storage location, permission errors) and mark the analysis job as failed with a clear error message indicating the storage issue.
+
+- **FR-029**: System MUST limit analysis scope for very large pages by configurable time limit or maximum element count. When limits are reached, System MUST return a partial design system result with a warning indicating the analysis was incomplete due to size constraints.
 
 - **FR-013**: System MUST return structured error responses with appropriate error codes for different failure scenarios in both immediate responses (validation errors) and status endpoint responses (analysis errors).
 
@@ -205,7 +219,7 @@ A developer wants to connect Cursor IDE to the MCP server but needs clear instru
 
 - **FR-020**: System MUST consolidate similar colors and styles to create a minimal, non-redundant token system.
 
-- **FR-021**: System MUST identify and document when components appear to be sourced from known design libraries (e.g., shadcn, reactbits, bootstrap) if such indicators are clearly visible.
+- **FR-021**: System MUST identify and document when components appear to be sourced from known design libraries (e.g., shadcn, reactbits, bootstrap) if such indicators are clearly visible. Playwright MUST actively detect and extract typical component blocks from popular design libraries by analyzing CSS class names, data attributes, DOM structure patterns, and style signatures characteristic of these libraries. The system MUST recognize library-specific component patterns (e.g., shadcn/ui button variants, Bootstrap grid system, Material-UI components) and annotate extracted components with their source library information in the design system JSON.
 
 - **FR-022**: System MUST structure design tokens into categories: colors, typography, spacing, radius, shadows, transitions, and components.
 
@@ -219,13 +233,13 @@ A developer wants to connect Cursor IDE to the MCP server but needs clear instru
 
 - **Design Token**: A named design value (color, spacing, font size, etc.) that can be referenced in the design system. Tokens may be semantic (e.g., "primary-color") or base values (e.g., hex color codes).
 
-- **Component Definition**: A reusable UI element specification including base properties, variants, states, and size options. Components reference design tokens for their styling values.
+- **Component Definition**: A reusable UI element specification including base properties, variants, states, and size options. Components reference design tokens for their styling values. When a component is identified as originating from a known design library (e.g., shadcn/ui, reactbits, Bootstrap, Material-UI), the component definition includes metadata indicating the source library name and library-specific properties or variants.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can submit a website URL and receive an immediate 202 Accepted response. Analysis jobs complete and status endpoint returns "completed" status within 60 seconds for typical websites (under 50 pages or equivalent content volume).
+- **SC-001**: Users can submit a website URL and receive an immediate 202 Accepted response. Analysis jobs complete and status endpoint returns "completed" status within 60 seconds for typical single-page websites. The system analyzes only the provided URL page (no crawling). For pages with very large numbers of elements, partial results are returned when time or element count limits are reached, with a warning in the job status.
 
 - **SC-002**: The generated design system file correctly identifies and extracts at least 80% of the primary design tokens (main colors, typography scale, primary spacing values) from websites with standard HTML/CSS structure.
 
@@ -243,17 +257,22 @@ A developer wants to connect Cursor IDE to the MCP server but needs clear instru
 
 - **SC-008**: The system consolidates similar design values (colors within 5% similarity, matching spacing values) into shared tokens, reducing redundancy by at least 30% compared to listing all unique values.
 
+- **SC-010**: When a website uses components from known design libraries (shadcn/ui, reactbits, Bootstrap, Material-UI, Ant Design, Chakra UI, etc.), the system correctly identifies and annotates at least 70% of library-specific components by analyzing CSS class names, data attributes, and DOM structure patterns. Extracted components include their source library information in the design system JSON metadata.
+
 ## Assumptions
 
 - Websites to be analyzed are primarily accessible without authentication, or authentication issues will be reported as errors.
 - Design systems are stored on persistent storage that is mounted as a volume, allowing files to persist across container restarts.
 - System is deployed using Docker containers via docker-compose.yml. Minimum architecture includes: (1) primary Node.js service container with HTTP API, MCP server, and background workers running in the same container, (2) separate test container for automated testing. Background workers may be split into separate containers with Redis for independent scaling if needed.
 - API keys are configured via environment variables at deployment time and provided to users separately (not generated by the service).
-- Maximum concurrent analysis limit is configurable via environment variable, with queued jobs processed in order when capacity becomes available.
+- Maximum concurrent analysis limit is configurable via environment variable, with queued jobs processed in FIFO (First In, First Out) order when capacity becomes available.
+- Analysis time limit and maximum element count are configurable via environment variables to handle very large pages by returning partial results with warnings.
 - Analysis job status information is deleted immediately upon job completion (successful or failed), requiring users to capture result locations from the final status response if needed.
 - The MCP server will be configured and used within Cursor IDE environment.
 - MCP server runs on a remote server and is accessible via HTTP or HTTPS over network (protocol configurable via environment variables) or through SSH tunnel with local stdio connection. All connections require API key authentication regardless of protocol. HTTPS provides transport-level encryption in addition to API key security, while HTTP relies solely on API key authentication (suitable for local development or internal networks).
 - When accessed via SSH tunnel, Cursor IDE establishes SSH connection to remote server and uses local stdio transport through the tunnel, maintaining security through SSH authentication and API key validation.
-- Users have reasonable expectations for analysis time based on website complexity (simple static sites analyzed quickly, complex SPAs may take longer).
+- Users have reasonable expectations for analysis time based on page complexity (simple static pages analyzed quickly, complex SPAs may take longer).
+- The system analyzes only the single page specified by the provided URL. No website crawling or multi-page traversal is performed. This ensures predictable analysis time and resource usage.
 - Design system extraction focuses on visual and stylistic patterns rather than functional behavior or business logic.
 - Websites using modern web standards (HTML5, CSS3) will yield better extraction results than legacy markup.
+- Playwright can identify components from popular design libraries by analyzing CSS class names, data attributes, DOM structure patterns, and computed style signatures. Library detection relies on characteristic patterns and naming conventions that these libraries use, which may vary in accuracy depending on whether classes are minified or obfuscated.
