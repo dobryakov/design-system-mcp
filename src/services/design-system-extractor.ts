@@ -1,11 +1,19 @@
 import { Page } from 'playwright';
 
+export interface ElementStateStyles {
+  hover?: Record<string, string>;
+  focus?: Record<string, string>;
+  active?: Record<string, string>;
+  disabled?: Record<string, string>;
+}
+
 export interface ExtractedElement {
   tag: string;
   classes: string[];
   id?: string;
   styles: Record<string, string>;
   computedStyles: Record<string, string>;
+  stateStyles?: ElementStateStyles;
   text?: string;
   attributes: Record<string, string>;
 }
@@ -45,8 +53,14 @@ export class DesignSystemExtractor {
     // Extract all elements
     await this.extractElements();
 
+    // Extract element states
+    await this.extractElementStates();
+
     // Extract library patterns
     await this.extractLibraryPatterns();
+
+    // Extract DOM structure patterns
+    await this.extractDOMStructurePatterns();
 
     return this.extractedData;
   }
@@ -181,6 +195,213 @@ export class DesignSystemExtractor {
     }
     if (transitionProperty && transitionProperty !== 'none') {
       this.extractedData.transitions.add(transitionProperty.trim());
+    }
+  }
+
+  private async extractElementStates(): Promise<void> {
+    // Get interactive elements (buttons, links, inputs, etc.)
+    const interactiveSelectors = 'button, a, input, select, textarea, [role="button"], [tabindex]';
+    const interactiveElements = await this.page.$$(interactiveSelectors);
+
+    for (const element of interactiveElements) {
+      try {
+        const tagName = await element.evaluate((el) => el.tagName.toLowerCase());
+        const isDisabled = await element.evaluate((el) => (el as HTMLElement).hasAttribute('disabled'));
+
+        const stateStyles: ElementStateStyles = {};
+
+        // Extract hover state
+        try {
+          await element.hover();
+          await this.page.waitForTimeout(100); // Wait for CSS transitions
+          const hoverStyles = await element.evaluate((el) => {
+            const computed = window.getComputedStyle(el);
+            const styles: Record<string, string> = {};
+            const colorProps = ['color', 'background-color', 'border-color'];
+            for (const prop of colorProps) {
+              styles[prop] = computed.getPropertyValue(prop);
+            }
+            return styles;
+          });
+          if (Object.keys(hoverStyles).length > 0) {
+            stateStyles.hover = hoverStyles;
+            // Extract colors from hover state
+            this.extractColors(hoverStyles);
+          }
+        } catch (e) {
+          // Element might not be hoverable, continue
+        }
+
+        // Extract focus state
+        try {
+          await element.focus();
+          await this.page.waitForTimeout(100);
+          const focusStyles = await element.evaluate((el) => {
+            const computed = window.getComputedStyle(el);
+            const styles: Record<string, string> = {};
+            const focusProps = ['outline', 'outline-color', 'outline-width', 'outline-style', 'border-color', 'box-shadow'];
+            for (const prop of focusProps) {
+              const value = computed.getPropertyValue(prop);
+              if (value && value !== 'none' && value !== '0px') {
+                styles[prop] = value;
+              }
+            }
+            return styles;
+          });
+          if (Object.keys(focusStyles).length > 0) {
+            stateStyles.focus = focusStyles;
+            this.extractColors(focusStyles);
+          }
+        } catch (e) {
+          // Element might not be focusable, continue
+        }
+
+        // Extract active state (for buttons and links)
+        if (tagName === 'button' || tagName === 'a') {
+          try {
+            await element.click({ force: true });
+            await this.page.waitForTimeout(100);
+            const activeStyles = await element.evaluate((el) => {
+              const computed = window.getComputedStyle(el);
+              const styles: Record<string, string> = {};
+              const colorProps = ['color', 'background-color', 'border-color'];
+              for (const prop of colorProps) {
+                styles[prop] = computed.getPropertyValue(prop);
+              }
+              return styles;
+            });
+            if (Object.keys(activeStyles).length > 0) {
+              stateStyles.active = activeStyles;
+              this.extractColors(activeStyles);
+            }
+            // Reset by clicking elsewhere
+            await this.page.click('body', { position: { x: 0, y: 0 } });
+          } catch (e) {
+            // Element might not be clickable, continue
+          }
+        }
+
+        // Extract disabled state
+        if (isDisabled) {
+          try {
+            const disabledStyles = await element.evaluate((el) => {
+              const computed = window.getComputedStyle(el);
+              const styles: Record<string, string> = {};
+              const disabledProps = ['color', 'background-color', 'border-color', 'opacity', 'cursor'];
+              for (const prop of disabledProps) {
+                styles[prop] = computed.getPropertyValue(prop);
+              }
+              return styles;
+            });
+            if (Object.keys(disabledStyles).length > 0) {
+              stateStyles.disabled = disabledStyles;
+              this.extractColors(disabledStyles);
+            }
+          } catch (e) {
+            // Continue
+          }
+        }
+
+        // Update the corresponding element in extractedData
+        if (Object.keys(stateStyles).length > 0) {
+          const elementIndex = this.extractedData.elements.findIndex((el) => {
+            // Try to match by tag and position
+            return el.tag === tagName;
+          });
+          if (elementIndex >= 0) {
+            this.extractedData.elements[elementIndex].stateStyles = stateStyles;
+          }
+        }
+      } catch (e) {
+        // Continue with next element if this one fails
+        continue;
+      }
+    }
+  }
+
+  private async extractDOMStructurePatterns(): Promise<void> {
+    // Analyze DOM structure to detect component patterns
+    const structurePatterns = await this.page.evaluate(() => {
+      const patterns: string[] = [];
+
+      // Check for card patterns (container with header, body, footer)
+      const cards = Array.from(document.querySelectorAll('[class*="card"], .card, [class*="Card"]'));
+      if (cards.length > 0) {
+        const hasCardStructure = cards.some((card) => {
+          const hasHeader = card.querySelector('[class*="header"], .header, [class*="Header"], h1, h2, h3, h4, h5, h6');
+          const hasBody = card.querySelector('[class*="body"], .body, [class*="Body"], p, div');
+          return hasHeader || hasBody;
+        });
+        if (hasCardStructure && !patterns.includes('card-structure')) {
+          patterns.push('card-structure');
+        }
+      }
+
+      // Check for form patterns (form with labels and inputs)
+      const forms = Array.from(document.querySelectorAll('form'));
+      if (forms.length > 0) {
+        const hasFormStructure = forms.some((form) => {
+          const hasLabel = form.querySelector('label');
+          const hasInput = form.querySelector('input, select, textarea');
+          return hasLabel && hasInput;
+        });
+        if (hasFormStructure && !patterns.includes('form-structure')) {
+          patterns.push('form-structure');
+        }
+      }
+
+      // Check for navigation patterns (nav with links)
+      const navs = Array.from(document.querySelectorAll('nav, [role="navigation"]'));
+      if (navs.length > 0) {
+        const hasNavStructure = navs.some((nav) => {
+          const links = nav.querySelectorAll('a, [role="link"]');
+          return links.length > 0;
+        });
+        if (hasNavStructure && !patterns.includes('navigation-structure')) {
+          patterns.push('navigation-structure');
+        }
+      }
+
+      // Check for button groups (multiple buttons together)
+      const buttonGroups = Array.from(document.querySelectorAll('[class*="button-group"], [class*="btn-group"], .button-group, .btn-group'));
+      if (buttonGroups.length > 0) {
+        const hasButtons = buttonGroups.some((group) => {
+          const buttons = group.querySelectorAll('button, [role="button"], a[class*="btn"]');
+          return buttons.length > 1;
+        });
+        if (hasButtons && !patterns.includes('button-group-structure')) {
+          patterns.push('button-group-structure');
+        }
+      }
+
+      // Check for modal/dialog patterns
+      const modals = Array.from(document.querySelectorAll('[class*="modal"], [class*="dialog"], [role="dialog"]'));
+      if (modals.length > 0) {
+        if (!patterns.includes('modal-structure')) {
+          patterns.push('modal-structure');
+        }
+      }
+
+      // Check for list patterns (ul/ol with list items)
+      const lists = Array.from(document.querySelectorAll('ul, ol, [role="list"]'));
+      if (lists.length > 0) {
+        const hasListItems = lists.some((list) => {
+          const items = list.querySelectorAll('li, [role="listitem"]');
+          return items.length > 0;
+        });
+        if (hasListItems && !patterns.includes('list-structure')) {
+          patterns.push('list-structure');
+        }
+      }
+
+      return patterns;
+    });
+
+    // Add structure patterns to library patterns if not already present
+    for (const pattern of structurePatterns) {
+      if (!this.extractedData.libraryPatterns.includes(pattern)) {
+        this.extractedData.libraryPatterns.push(pattern);
+      }
     }
   }
 

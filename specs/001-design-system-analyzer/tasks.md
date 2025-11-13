@@ -77,13 +77,13 @@
 
 ### E2E Tests for User Story 1
 
-- [ ] T025G [P] [US1] Create E2E test for basic page analysis in tests/e2e/playwright/analyze-basic.test.ts
-- [ ] T025H [P] [US1] Create E2E test for Bootstrap component detection in tests/e2e/playwright/analyze-bootstrap.test.ts
-- [ ] T025I [P] [US1] Create E2E test for Material-UI component detection in tests/e2e/playwright/analyze-material-ui.test.ts
-- [ ] T025J [P] [US1] Create E2E test for minimal page edge case in tests/e2e/playwright/analyze-minimal.test.ts
-- [ ] T025K [P] [US1] Create E2E test for error handling (invalid URL, timeout) in tests/e2e/playwright/analyze-errors.test.ts
-- [ ] T025L [P] [US1] Create E2E test for job status polling workflow in tests/e2e/playwright/job-status.test.ts
-- [ ] T025M [P] [US1] Create E2E test for concurrent job limit enforcement in tests/e2e/playwright/concurrent-jobs.test.ts
+- [X] T025G [P] [US1] Create E2E test for basic page analysis in tests/e2e/playwright/analyze-basic.test.ts
+- [X] T025H [P] [US1] Create E2E test for Bootstrap component detection in tests/e2e/playwright/analyze-bootstrap.test.ts
+- [X] T025I [P] [US1] Create E2E test for Material-UI component detection in tests/e2e/playwright/analyze-material-ui.test.ts
+- [X] T025J [P] [US1] Create E2E test for minimal page edge case in tests/e2e/playwright/analyze-minimal.test.ts
+- [X] T025K [P] [US1] Create E2E test for error handling (invalid URL, timeout) in tests/e2e/playwright/analyze-errors.test.ts
+- [X] T025L [P] [US1] Create E2E test for job status polling workflow in tests/e2e/playwright/job-status.test.ts
+- [X] T025M [P] [US1] Create E2E test for concurrent job limit enforcement in tests/e2e/playwright/concurrent-jobs.test.ts
 
 ### Implementation for User Story 1
 
@@ -107,10 +107,10 @@
 - [X] T043 [US1] Implement border-radius token extraction in src/services/design-system-extractor.ts
 - [X] T044 [US1] Implement box-shadow token extraction in src/services/design-system-extractor.ts
 - [X] T045 [US1] Implement transition/animation token extraction in src/services/design-system-extractor.ts
-- [ ] T046 [US1] Implement element state detection (hover, focus, active, disabled) in src/services/design-system-extractor.ts
+- [X] T046 [US1] Implement element state detection (hover, focus, active, disabled) in src/services/design-system-extractor.ts
 - [X] T047 [US1] Implement library-specific component pattern detection (shadcn/ui, Bootstrap, Material-UI, etc.) via CSS class names in src/services/design-system-extractor.ts
 - [X] T048 [US1] Implement library-specific component pattern detection via data attributes in src/services/design-system-extractor.ts
-- [ ] T049 [US1] Implement library-specific component pattern detection via DOM structure patterns in src/services/design-system-extractor.ts
+- [X] T049 [US1] Implement library-specific component pattern detection via DOM structure patterns in src/services/design-system-extractor.ts
 - [X] T050 [US1] Create design token analyzer service in src/services/design-token-analyzer.ts
 - [X] T051 [US1] Implement color consolidation (similar colors within 5% similarity) in src/services/design-token-analyzer.ts
 - [X] T052 [US1] Implement spacing value consolidation (matching spacing values) in src/services/design-token-analyzer.ts
