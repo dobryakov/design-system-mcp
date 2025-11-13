@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basic Design System Test Page</title>
+  <style>
+    :root {
+      --primary-color: #007bff;
+      --secondary-color: #6c757d;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --font-family: 'Arial', sans-serif;
+      --font-size-base: 16px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --border-radius: 4px;
+    }
+
+    body {
+      font-family: var(--font-family);
+      font-size: var(--font-size-base);
+      margin: 0;
+      padding: var(--spacing-md);
+    }
+
+    .button {
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--border-radius);
+      border: none;
+      cursor: pointer;
+      font-size: var(--font-size-base);
+    }
+
+    .button-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .button-secondary {
+      background-color: var(--secondary-color);
+      color: white;
+    }
+
+    .form-group {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: var(--spacing-sm);
+      font-weight: bold;
+    }
+
+    .form-input {
+      padding: var(--spacing-sm);
+      border: 1px solid #ccc;
+      border-radius: var(--border-radius);
+      width: 100%;
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Basic Design System Test Page</h1>
+  
+  <section>
+    <h2>Buttons</h2>
+    <button class="button button-primary">Primary Button</button>
+    <button class="button button-secondary">Secondary Button</button>
+  </section>
+
+  <section>
+    <h2>Forms</h2>
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input type="text" class="form-input" placeholder="Enter your name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-input" placeholder="Enter your email">
+    </div>
+  </section>
+
+  <section>
+    <h2>Typography</h2>
+    <h1>Heading 1</h1>
+    <h2>Heading 2</h2>
+    <h3>Heading 3</h3>
+    <p>This is a paragraph with regular text.</p>
+  </section>
+
+  <section>
+    <h2>Colors</h2>
+    <div style="background-color: var(--primary-color); color: white; padding: 10px; margin: 5px 0;">Primary Color</div>
+    <div style="background-color: var(--secondary-color); color: white; padding: 10px; margin: 5px 0;">Secondary Color</div>
+    <div style="background-color: var(--success-color); color: white; padding: 10px; margin: 5px 0;">Success Color</div>
+    <div style="background-color: var(--danger-color); color: white; padding: 10px; margin: 5px 0;">Danger Color</div>
+  </section>
+</body>
+</html>
+

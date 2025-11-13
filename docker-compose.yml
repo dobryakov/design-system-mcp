@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: design-system-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: design-system-api
+    ports:
+      - "${PORT:-3000}:3000"
+      - "${MCP_PORT:-3001}:3001"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - API_KEYS=${API_KEYS}
+      - MAX_CONCURRENT_ANALYSES=${MAX_CONCURRENT_ANALYSES:-5}
+      - MCP_PROTOCOL=${MCP_PROTOCOL:-http}
+      - MCP_PORT=${MCP_PORT:-3001}
+      - DESIGNS_DIR=${DESIGNS_DIR:-./designs}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - PORT=${PORT:-3000}
+    volumes:
+      - ./designs:/app/designs
+      - ./logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: design-system-test
+    environment:
+      - NODE_ENV=test
+      - API_KEYS=test-api-key
+      - MAX_CONCURRENT_ANALYSES=5
+      - MCP_PROTOCOL=http
+      - MCP_PORT=3001
+      - DESIGNS_DIR=/app/tests/fixtures/designs
+      - LOG_LEVEL=debug
+      - REDIS_URL=redis://redis:6379
+      - PORT=3000
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - redis
+      - api
+    command: npm test
+    profiles:
+      - test
+
+volumes:
+  redis-data:
+

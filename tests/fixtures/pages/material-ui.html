@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Material-UI Design System Test Page</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .mdc-button {
+      padding: 10px 24px;
+      border-radius: 4px;
+      border: none;
+      font-weight: 500;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin: 8px;
+    }
+    .mdc-button--raised {
+      box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12);
+    }
+    .mdc-button--primary {
+      background-color: #1976d2;
+      color: white;
+    }
+    .mdc-button--secondary {
+      background-color: #dc004e;
+      color: white;
+    }
+    .mdc-text-field {
+      margin: 16px 0;
+    }
+    .mdc-text-field__input {
+      padding: 12px;
+      border: 1px solid rgba(0,0,0,0.42);
+      border-radius: 4px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Material-UI Design System Test Page</h1>
+  
+  <section>
+    <h2>Buttons</h2>
+    <button class="mdc-button mdc-button--raised mdc-button--primary">Primary Button</button>
+    <button class="mdc-button mdc-button--raised mdc-button--secondary">Secondary Button</button>
+    <button class="mdc-button">Text Button</button>
+  </section>
+
+  <section>
+    <h2>Forms</h2>
+    <div class="mdc-text-field">
+      <input type="text" class="mdc-text-field__input" placeholder="Name" aria-label="Name">
+    </div>
+    <div class="mdc-text-field">
+      <input type="email" class="mdc-text-field__input" placeholder="Email" aria-label="Email">
+    </div>
+  </section>
+
+  <section>
+    <h2>Icons</h2>
+    <span class="material-icons">home</span>
+    <span class="material-icons">favorite</span>
+    <span class="material-icons">star</span>
+  </section>
+</body>
+</html>
+
