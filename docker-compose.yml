@@ -64,6 +64,8 @@ services:
       - "3002:3002"
     volumes:
       - .:/app
+      # Anonymous volume to isolate node_modules from host
+      # This ensures container uses node_modules from Docker image, not from host
       - /app/node_modules
     working_dir: /app
     healthcheck:
@@ -97,6 +99,8 @@ services:
       - API_URL=http://api:3000
     volumes:
       - .:/app
+      # Anonymous volume to isolate node_modules from host
+      # This ensures container uses node_modules from Docker image, not from host
       - /app/node_modules
     depends_on:
       redis:

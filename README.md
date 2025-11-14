@@ -76,9 +76,19 @@ See [Quickstart Guide](./specs/001-design-system-analyzer/quickstart.md) for det
 
 ### Install Dependencies
 
+**Note**: For Docker-based development, you don't need to install dependencies on the host. All dependencies are installed in containers.
+
+If you want to develop locally without Docker:
+
 ```bash
 npm install
 ```
+
+**Important**: 
+- `node_modules` on the host is not used by containers
+- Test containers use isolated `node_modules` via anonymous Docker volumes
+- The `api` container uses `node_modules` from the Docker image (production dependencies only)
+- If you have `node_modules` on the host, it's safe to delete it when using Docker
 
 ### Run Tests
 

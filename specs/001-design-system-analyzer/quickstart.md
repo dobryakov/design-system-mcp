@@ -59,6 +59,13 @@ This will:
 - Start the Node.js API server on port 3000
 - Start the MCP server on port 3001 (if configured)
 
+**Note about `node_modules` isolation**: 
+- Containers use isolated `node_modules` from Docker images (not from host)
+- The `api` container uses `node_modules` from the image (production dependencies only, ~38MB)
+- Test containers use anonymous Docker volumes (`/app/node_modules`) to isolate from host
+- If you have `node_modules` on the host, containers will NOT use it - it's safe to delete
+- Host `node_modules` is only needed for local development without Docker
+
 ### 4. Verify Health
 
 Check that the service is running:
