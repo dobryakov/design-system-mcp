@@ -12,13 +12,16 @@ export class McpServer {
    * Process an MCP request and return a response
    */
   async processRequest(request: McpRequest, apiKey?: string): Promise<McpResponse> {
-    // Validate API key
-    if (!apiKeyAuthenticator.validate(apiKey)) {
-      return this.createErrorResponse(
-        request.id,
-        -32001,
-        'Unauthorized: Invalid or missing API key'
-      );
+    // Skip API key validation for initialize method (handshake)
+    if (request.method !== 'initialize') {
+      // Validate API key for all other methods
+      if (!apiKeyAuthenticator.validate(apiKey)) {
+        return this.createErrorResponse(
+          request.id,
+          -32001,
+          'Unauthorized: Invalid or missing API key'
+        );
+      }
     }
 
     // Validate JSON-RPC version
@@ -54,6 +57,25 @@ export class McpServer {
    */
   private async handleMethod(method: string, params: Record<string, unknown>): Promise<unknown> {
     switch (method) {
+      case 'initialize':
+        // MCP initialize method - returns server capabilities
+        return {
+          protocolVersion: '2024-11-05',
+          capabilities: {
+            tools: {
+              listChanged: false,
+            },
+            resources: {
+              subscribe: false,
+              listChanged: false,
+            },
+          },
+          serverInfo: {
+            name: 'design-system-analyzer',
+            version: '1.0.0',
+          },
+        };
+      
       case 'tools/list':
         return listTools();
       

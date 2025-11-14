@@ -66,12 +66,12 @@ if (mcpConfig.port !== port) {
   mcpApp.use(notFoundHandler);
   mcpApp.use(errorHandler);
 
-  mcpApp.listen(mcpConfig.port, mcpConfig.host, () => {
+  mcpApp.listen(mcpConfig.port, mcpConfig.host || '0.0.0.0', () => {
     logger.info(
       {
         protocol: mcpConfig.protocol,
         port: mcpConfig.port,
-        host: mcpConfig.host,
+        host: mcpConfig.host || '0.0.0.0',
       },
       'MCP server started'
     );

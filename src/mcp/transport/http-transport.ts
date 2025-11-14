@@ -11,7 +11,17 @@ export function createHttpTransport(): Router {
 
   // MCP endpoint - accepts JSON-RPC 2.0 requests
   router.post('/', async (req: Request, res: Response) => {
-    const apiKey = req.headers['x-api-key'] as string | undefined;
+    // Try to get API key from multiple sources:
+    // 1. X-API-Key header
+    // 2. Authorization header (Bearer token)
+    // 3. apiKey in request body params (for MCP protocol)
+    let apiKey = req.headers['x-api-key'] as string | undefined;
+    if (!apiKey && req.headers['authorization']) {
+      const authHeader = req.headers['authorization'] as string;
+      if (authHeader.startsWith('Bearer ')) {
+        apiKey = authHeader.substring(7);
+      }
+    }
     const correlationId = req.headers['x-correlation-id'] as string | undefined;
 
     try {
@@ -30,12 +40,18 @@ export function createHttpTransport(): Router {
 
       const mcpRequest: McpRequest = req.body;
 
+      // If API key is in request params (MCP protocol specific), use it
+      if (!apiKey && mcpRequest.params && typeof mcpRequest.params === 'object' && 'apiKey' in mcpRequest.params) {
+        apiKey = mcpRequest.params.apiKey as string;
+      }
+
       // Log request
       logger.info(
         {
           correlationId,
           method: mcpRequest.method,
           id: mcpRequest.id,
+          hasApiKey: !!apiKey,
         },
         'MCP request received'
       );
