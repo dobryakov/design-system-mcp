@@ -154,8 +154,14 @@ cat designs/example/design-system.json
 
 ### Using the CLI Script
 
+The script requires an API key for authentication. You can provide it either as an argument or via environment variable:
+
 ```bash
-./scripts/analyze.sh example https://example.com
+# Option 1: Pass API key as third argument
+./scripts/analyze.sh example https://example.com your-api-key-1
+
+# Option 2: Set API key via environment variable
+API_KEY=your-api-key-1 ./scripts/analyze.sh example https://example.com
 ```
 
 The script handles API key authentication and async job polling internally.
