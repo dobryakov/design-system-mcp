@@ -103,7 +103,16 @@ export class McpServer {
         if (!toolName) {
           throw new Error('Tool name is required');
         }
-        return await callTool(toolName, toolParams);
+        const toolResult = await callTool(toolName, toolParams);
+        // MCP tools/call response format: wrap result in content array
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(toolResult, null, 2),
+            },
+          ],
+        };
       }
       
       case 'resources/list':
