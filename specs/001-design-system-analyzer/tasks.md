@@ -152,29 +152,29 @@
 
 ### Implementation for User Story 2
 
-- [ ] T068 [US2] Create MCP server implementation structure in src/mcp/server.ts
-- [ ] T069 [US2] Implement JSON-RPC 2.0 protocol handlers in src/mcp/server.ts
-- [ ] T070 [US2] Create HTTP transport implementation in src/mcp/transport/http-transport.ts
-- [ ] T071 [US2] Create HTTPS transport implementation in src/mcp/transport/http-transport.ts
-- [ ] T072 [US2] Create stdio transport implementation for SSH tunnel in src/mcp/transport/stdio-transport.ts
-- [ ] T073 [US2] Implement MCP protocol tools/list handler in src/mcp/handlers/tools.handler.ts
-- [ ] T074 [US2] Implement MCP protocol tools/call handler in src/mcp/handlers/tools.handler.ts
-- [ ] T075 [US2] Implement MCP protocol resources/list handler in src/mcp/handlers/resources.handler.ts
-- [ ] T076 [US2] Implement MCP protocol resources/read handler in src/mcp/handlers/resources.handler.ts
-- [ ] T077 [US2] Create design system query handler in src/mcp/handlers/design-system.handler.ts
-- [ ] T078 [US2] Implement design system lookup by name from designs/`<site-name>`/design-system.json in src/mcp/handlers/design-system.handler.ts
-- [ ] T079 [US2] Create component query handler in src/mcp/handlers/component.handler.ts
-- [ ] T080 [US2] Implement component retrieval from design system JSON in src/mcp/handlers/component.handler.ts
-- [ ] T081 [US2] Implement token retrieval from design system JSON in src/mcp/handlers/design-system.handler.ts
-- [ ] T082 [US2] Implement pattern retrieval from design system JSON in src/mcp/handlers/design-system.handler.ts
-- [ ] T083 [US2] Implement API key authentication for MCP requests in src/mcp/server.ts
-- [ ] T084 [US2] Implement MCP server configuration (HTTP/HTTPS protocol selection) in config/mcp.ts
-- [ ] T085 [US2] Implement MCP server port configuration in config/mcp.ts
-- [ ] T086 [US2] Integrate MCP server with Express app in src/server.ts
-- [ ] T087 [US2] Implement error handling for non-existent design system queries in src/mcp/handlers/design-system.handler.ts
-- [ ] T088 [US2] Implement error handling for non-existent component queries in src/mcp/handlers/component.handler.ts
-- [ ] T089 [US2] Add structured logging for MCP requests in src/mcp/server.ts
-- [ ] T090 [US2] Ensure design system files are accessible in real-time without service restart in src/mcp/handlers/design-system.handler.ts
+- [X] T068 [US2] Create MCP server implementation structure in src/mcp/server.ts
+- [X] T069 [US2] Implement JSON-RPC 2.0 protocol handlers in src/mcp/server.ts
+- [X] T070 [US2] Create HTTP transport implementation in src/mcp/transport/http-transport.ts
+- [X] T071 [US2] Create HTTPS transport implementation in src/mcp/transport/http-transport.ts
+- [X] T072 [US2] Create stdio transport implementation for SSH tunnel in src/mcp/transport/stdio-transport.ts
+- [X] T073 [US2] Implement MCP protocol tools/list handler in src/mcp/handlers/tools.handler.ts
+- [X] T074 [US2] Implement MCP protocol tools/call handler in src/mcp/handlers/tools.handler.ts
+- [X] T075 [US2] Implement MCP protocol resources/list handler in src/mcp/handlers/resources.handler.ts
+- [X] T076 [US2] Implement MCP protocol resources/read handler in src/mcp/handlers/resources.handler.ts
+- [X] T077 [US2] Create design system query handler in src/mcp/handlers/design-system.handler.ts
+- [X] T078 [US2] Implement design system lookup by name from designs/`<site-name>`/design-system.json in src/mcp/handlers/design-system.handler.ts
+- [X] T079 [US2] Create component query handler in src/mcp/handlers/component.handler.ts
+- [X] T080 [US2] Implement component retrieval from design system JSON in src/mcp/handlers/component.handler.ts
+- [X] T081 [US2] Implement token retrieval from design system JSON in src/mcp/handlers/design-system.handler.ts
+- [X] T082 [US2] Implement pattern retrieval from design system JSON in src/mcp/handlers/design-system.handler.ts
+- [X] T083 [US2] Implement API key authentication for MCP requests in src/mcp/server.ts
+- [X] T084 [US2] Implement MCP server configuration (HTTP/HTTPS protocol selection) in config/mcp.ts
+- [X] T085 [US2] Implement MCP server port configuration in config/mcp.ts
+- [X] T086 [US2] Integrate MCP server with Express app in src/server.ts
+- [X] T087 [US2] Implement error handling for non-existent design system queries in src/mcp/handlers/design-system.handler.ts
+- [X] T088 [US2] Implement error handling for non-existent component queries in src/mcp/handlers/component.handler.ts
+- [X] T089 [US2] Add structured logging for MCP requests in src/mcp/server.ts
+- [X] T090 [US2] Ensure design system files are accessible in real-time without service restart in src/mcp/handlers/design-system.handler.ts
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently. Users can extract design systems and query them via MCP interface from Cursor IDE.
 
@@ -188,17 +188,17 @@
 
 ### Implementation for User Story 3
 
-- [ ] T091 [US3] Create shell script for analysis in scripts/analyze.sh
-- [ ] T092 [US3] Implement parameter parsing (site_name and url) in scripts/analyze.sh
-- [ ] T093 [US3] Implement API key reading from environment variable in scripts/analyze.sh
-- [ ] T094 [US3] Implement HTTP POST request to /analyze endpoint in scripts/analyze.sh
-- [ ] T095 [US3] Implement job status polling loop in scripts/analyze.sh
-- [ ] T096 [US3] Implement status endpoint polling with job_id in scripts/analyze.sh
-- [ ] T097 [US3] Implement completion detection and result display in scripts/analyze.sh
-- [ ] T098 [US3] Implement error handling for invalid parameters in scripts/analyze.sh
-- [ ] T099 [US3] Implement error handling for failed analysis jobs in scripts/analyze.sh
-- [ ] T100 [US3] Add usage instructions and help text in scripts/analyze.sh
-- [ ] T101 [US3] Make script executable with proper shebang in scripts/analyze.sh
+- [X] T091 [US3] Create shell script for analysis in scripts/analyze.sh
+- [X] T092 [US3] Implement parameter parsing (site_name and url) in scripts/analyze.sh
+- [X] T093 [US3] Implement API key reading from environment variable in scripts/analyze.sh
+- [X] T094 [US3] Implement HTTP POST request to /analyze endpoint in scripts/analyze.sh
+- [X] T095 [US3] Implement job status polling loop in scripts/analyze.sh
+- [X] T096 [US3] Implement status endpoint polling with job_id in scripts/analyze.sh
+- [X] T097 [US3] Implement completion detection and result display in scripts/analyze.sh
+- [X] T098 [US3] Implement error handling for invalid parameters in scripts/analyze.sh
+- [X] T099 [US3] Implement error handling for failed analysis jobs in scripts/analyze.sh
+- [X] T100 [US3] Add usage instructions and help text in scripts/analyze.sh
+- [X] T101 [US3] Make script executable with proper shebang in scripts/analyze.sh
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently. Users can extract design systems via HTTP API, query them via MCP, and trigger analysis via CLI.
 
@@ -212,14 +212,14 @@
 
 ### Implementation for User Story 4
 
-- [ ] T102 [US4] Create MCP configuration documentation section in README.md
-- [ ] T103 [US4] Document HTTP connection configuration example for Cursor IDE in README.md
-- [ ] T104 [US4] Document HTTPS connection configuration example for Cursor IDE in README.md
-- [ ] T105 [US4] Document SSH tunnel connection configuration example for Cursor IDE in README.md
-- [ ] T106 [US4] Document API key configuration in MCP setup examples in README.md
-- [ ] T107 [US4] Document port configuration for MCP server in README.md
-- [ ] T108 [US4] Add troubleshooting section for MCP connection issues in README.md
-- [ ] T109 [US4] Update quickstart.md with MCP configuration examples (already present, verify completeness)
+- [X] T102 [US4] Create MCP configuration documentation section in README.md
+- [X] T103 [US4] Document HTTP connection configuration example for Cursor IDE in README.md
+- [X] T104 [US4] Document HTTPS connection configuration example for Cursor IDE in README.md
+- [X] T105 [US4] Document SSH tunnel connection configuration example for Cursor IDE in README.md
+- [X] T106 [US4] Document API key configuration in MCP setup examples in README.md
+- [X] T107 [US4] Document port configuration for MCP server in README.md
+- [X] T108 [US4] Add troubleshooting section for MCP connection issues in README.md
+- [X] T109 [US4] Update quickstart.md with MCP configuration examples (already present, verify completeness)
 
 **Checkpoint**: All user stories should now be independently functional. Users can extract design systems, query them via MCP, trigger analysis via CLI, and configure Cursor IDE using provided documentation.
 
@@ -229,18 +229,18 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T110 [P] Update README.md with complete API documentation and usage examples
-- [ ] T111 [P] Add curl examples for all API endpoints in README.md
-- [ ] T112 [P] Verify all environment variables are documented in .env.example
+- [X] T110 [P] Update README.md with complete API documentation and usage examples
+- [X] T111 [P] Add curl examples for all API endpoints in README.md
+- [X] T112 [P] Verify all environment variables are documented in .env.example
 - [ ] T113 [P] Add API contract validation against openapi.yaml in src/middleware/contract-validator.ts
 - [ ] T114 Code cleanup and refactoring across all services
-- [ ] T115 [P] Add request/response logging improvements with trace IDs
+- [X] T115 [P] Add request/response logging improvements with trace IDs (already implemented with correlation IDs)
 - [ ] T116 [P] Add performance monitoring for analysis job duration
-- [ ] T117 [P] Add queue depth monitoring in health check endpoint
-- [ ] T118 Security hardening: validate all input parameters
+- [X] T117 [P] Add queue depth monitoring in health check endpoint (already implemented)
+- [X] T118 Security hardening: validate all input parameters (already implemented in routes)
 - [ ] T119 Security hardening: implement rate limiting for API endpoints
 - [ ] T120 Run quickstart.md validation to ensure all examples work
-- [ ] T121 [P] Add comprehensive error messages for all failure scenarios
+- [X] T121 [P] Add comprehensive error messages for all failure scenarios (already implemented)
 - [ ] T122 [P] Verify design system JSON schema compliance with design-tokens.org
 - [ ] T123 [P] Add validation for design system file structure before saving
 - [ ] T124 [P] Improve library detection accuracy with additional pattern matching
