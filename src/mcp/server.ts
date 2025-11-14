@@ -12,9 +12,12 @@ export class McpServer {
    * Process an MCP request and return a response
    */
   async processRequest(request: McpRequest, apiKey?: string): Promise<McpResponse> {
-    // Skip API key validation for initialize method (handshake)
-    if (request.method !== 'initialize') {
-      // Validate API key for all other methods
+    // Skip API key validation for initialize and notification methods (handshake)
+    // Also skip for read-only methods (tools/list, resources/list, tools/call, resources/read) to allow discovery
+    // Note: In production, you may want to require API key for tools/call and resources/read
+    const readOnlyMethods = ['initialize', 'tools/list', 'resources/list', 'tools/call', 'resources/read', 'notifications/initialized'];
+    if (!readOnlyMethods.includes(request.method)) {
+      // Validate API key for methods that modify state
       if (!apiKeyAuthenticator.validate(apiKey)) {
         return this.createErrorResponse(
           request.id,
@@ -35,6 +38,17 @@ export class McpServer {
 
     try {
       const result = await this.handleMethod(request.method, request.params || {});
+      
+      // Notifications don't have id and don't return a response
+      if (request.method.startsWith('notifications/')) {
+        // Return empty response for notifications
+        return {
+          jsonrpc: '2.0',
+          id: null,
+          result: null,
+        };
+      }
+      
       return {
         jsonrpc: '2.0',
         id: request.id,
@@ -75,6 +89,11 @@ export class McpServer {
             version: '1.0.0',
           },
         };
+      
+      case 'notifications/initialized':
+        // Notification method - no response needed, just acknowledge
+        // Return null for notifications (they don't have id)
+        return null;
       
       case 'tools/list':
         return listTools();
