@@ -1,4 +1,4 @@
-import { McpTool, McpToolsListResponse } from '../../types/mcp.js';
+import { McpToolsListResponse } from '../../types/mcp.js';
 import { getComponent } from './component.handler.js';
 import { getDesignTokens, getPatterns, loadDesignSystem } from './design-system.handler.js';
 import logger from '../../utils/logger.js';
