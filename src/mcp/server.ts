@@ -13,11 +13,10 @@ export class McpServer {
    */
   async processRequest(request: McpRequest, apiKey?: string): Promise<McpResponse> {
     // Skip API key validation for initialize and notification methods (handshake)
-    // Also skip for read-only methods (tools/list, resources/list, tools/call, resources/read) to allow discovery
-    // Note: In production, you may want to require API key for tools/call and resources/read
-    const readOnlyMethods = ['initialize', 'tools/list', 'resources/list', 'tools/call', 'resources/read', 'notifications/initialized'];
-    if (!readOnlyMethods.includes(request.method)) {
-      // Validate API key for methods that modify state
+    // Also skip for read-only discovery methods (tools/list, resources/list) to allow discovery
+    const publicMethods = ['initialize', 'tools/list', 'resources/list', 'notifications/initialized'];
+    if (!publicMethods.includes(request.method)) {
+      // Validate API key for methods that access data (tools/call, resources/read)
       if (!apiKeyAuthenticator.validate(apiKey)) {
         return this.createErrorResponse(
           request.id,
