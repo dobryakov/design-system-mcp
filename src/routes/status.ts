@@ -20,7 +20,7 @@ function authenticateApiKey(req: Request, _res: Response, next: NextFunction): v
   next();
 }
 
-router.get('/:job_id', authenticateApiKey, async (req: Request, res: Response) => {
+router.get('/:job_id', authenticateApiKey, async (req: Request, res: Response, next: NextFunction) => {
   const { job_id } = req.params;
   const correlationId = (req as Request & { correlationId?: string }).correlationId;
 
@@ -35,7 +35,7 @@ router.get('/:job_id', authenticateApiKey, async (req: Request, res: Response) =
       const error: AppError = new Error('Job not found');
       error.statusCode = 404;
       error.code = 'job_not_found';
-      throw error;
+      return next(error);
     }
 
     const jobStatus = JSON.parse(jobStatusJson) as JobStatusResponse;
@@ -43,13 +43,13 @@ router.get('/:job_id', authenticateApiKey, async (req: Request, res: Response) =
     res.status(200).json(jobStatus);
   } catch (error) {
     if (error && typeof error === 'object' && 'statusCode' in error) {
-      throw error;
+      return next(error);
     }
     logger.error({ error, job_id, correlationId }, 'Failed to retrieve job status');
     const appError = new Error('Failed to retrieve job status') as AppError;
     appError.statusCode = 500;
     appError.code = 'status_retrieval_failed';
-    throw appError;
+    return next(appError);
   }
 });
 
