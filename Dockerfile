@@ -1,5 +1,8 @@
 FROM node:20-slim
 
+# Build argument to control dependency installation
+ARG INSTALL_DEV_DEPS=true
+
 # Install Playwright dependencies and browsers
 RUN apt-get update && apt-get install -y \
     libnss3 \
@@ -26,10 +29,10 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install all dependencies (needed for TypeScript build)
+RUN npm ci
 
-# Install Playwright browsers
+# Install Playwright browsers (needed for both production and test)
 RUN npx playwright install --with-deps chromium
 
 # Copy source code
@@ -37,6 +40,12 @@ COPY . .
 
 # Clean and build TypeScript
 RUN rm -rf dist && npm run build
+
+# Remove devDependencies for production builds to reduce image size
+# Test containers keep all dependencies
+RUN if [ "$INSTALL_DEV_DEPS" = "false" ]; then \
+      npm prune --production; \
+    fi
 
 # Expose ports
 EXPOSE 3000 3001

@@ -18,6 +18,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        INSTALL_DEV_DEPS: "false"
     container_name: design-system-api
     ports:
       - "${PORT:-3000}:3000"
@@ -52,6 +54,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        INSTALL_DEV_DEPS: "true"
     container_name: design-system-test-server
     environment:
       - RUN_TEST_SERVER=true
@@ -75,6 +79,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        INSTALL_DEV_DEPS: "true"
     container_name: design-system-test
     environment:
       - NODE_ENV=test
