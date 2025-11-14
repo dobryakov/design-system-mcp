@@ -52,10 +52,14 @@ Verify compliance with the project constitution (`.specify/memory/constitution.m
 
 - **Principle II (Containerization)**: ✅ **COMPLIANT**
   - All components run in Docker containers via `docker-compose.yml`
-  - Minimum 2 containers: primary Node.js service (HTTP API + MCP server + background workers) and test container
-  - Redis container for BullMQ job queue (can be shared or separate)
+  - Minimum containers: 
+    - Primary Node.js service (HTTP API + MCP server + background workers)
+    - Redis container for BullMQ job queue
+    - Test container for running automated tests
+    - Test-server container for serving test fixture HTML pages (E2E testing)
   - No host dependencies required (Node.js, Playwright browsers all in containers)
   - Background workers may be split into separate containers for scaling if needed
+  - Test infrastructure: `test-server` serves fixture pages, `test` container runs Playwright E2E tests
 
 - **Principle III (Observability)**: ✅ **COMPLIANT**
   - Structured logging: JSON logging via `pino` logger with correlation IDs
@@ -72,7 +76,11 @@ Verify compliance with the project constitution (`.specify/memory/constitution.m
   - Unit tests: Jest tests inside service container
   - Integration tests: HTTP API tests with Jest + Supertest in dedicated test container
   - E2E tests: Playwright browser tests with `@playwright/test` in test container (with browsers installed)
-  - Test containers connected via shared `docker-compose.yml`
+  - Test infrastructure: 
+    - `test` container: Runs Playwright E2E tests, sends requests to API container
+    - `test-server` container: Serves test fixture HTML pages (basic.html, bootstrap.html, material-ui.html, minimal.html) on port 3002
+    - Test containers connected via shared `docker-compose.yml` and Docker network
+    - API container accesses test-server via Docker network at `http://test-server:3002` during analysis
 
 **Post-Design Re-evaluation (Phase 1 Complete)**: ✅ **ALL PRINCIPLES COMPLIANT**
 - All clarifications resolved in research.md

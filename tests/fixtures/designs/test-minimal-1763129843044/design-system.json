@@ -1,0 +1,67 @@
+{
+  "$schema": "https://design-tokens.org/schema/v1.1.json",
+  "metadata": {
+    "name": "test-minimal-1763129843044",
+    "version": "1.0.0",
+    "lastModified": "2025-11-14T14:17:25.094Z"
+  },
+  "group": "tokens",
+  "global": {
+    "color": {
+      "color-dark-0": {
+        "value": "rgb(0, 0, 0)",
+        "type": "color"
+      },
+      "color-light-1": {
+        "value": "rgb(239, 239, 239)",
+        "type": "color"
+      },
+      "color-light-2": {
+        "value": "rgb(255, 255, 255)",
+        "type": "color"
+      },
+      "color-3": {
+        "value": "rgb(118, 118, 118)",
+        "type": "color"
+      }
+    },
+    "font": {
+      "font-family-0": {
+        "value": "Times New Roman"
+      },
+      "font-family-1": {
+        "value": "Arial"
+      }
+    },
+    "spacing": {
+      "spacing-0": {
+        "value": "normal"
+      },
+      "spacing-1": {
+        "value": "8px"
+      },
+      "spacing-2": {
+        "value": "21.44px"
+      },
+      "spacing-3": {
+        "value": "16px"
+      },
+      "spacing-4": {
+        "value": "1px"
+      },
+      "spacing-5": {
+        "value": "6px"
+      },
+      "spacing-6": {
+        "value": "2px"
+      }
+    },
+    "radius": {},
+    "shadow": {},
+    "transition": {
+      "transition-0": {
+        "value": "all"
+      }
+    }
+  }
+}

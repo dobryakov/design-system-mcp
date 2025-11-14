@@ -1,0 +1,93 @@
+{
+  "$schema": "https://design-tokens.org/schema/v1.1.json",
+  "metadata": {
+    "name": "test-concurrent-1763129847571-5",
+    "version": "1.0.0",
+    "lastModified": "2025-11-14T14:17:41.459Z"
+  },
+  "group": "tokens",
+  "global": {
+    "color": {
+      "color-dark-0": {
+        "value": "rgb(0, 0, 0)",
+        "type": "color"
+      },
+      "color-light-1": {
+        "value": "rgb(255, 255, 255)",
+        "type": "color"
+      },
+      "color-2": {
+        "value": "rgb(0, 123, 255)",
+        "type": "color"
+      },
+      "color-3": {
+        "value": "rgb(108, 117, 125)",
+        "type": "color"
+      },
+      "color-light-4": {
+        "value": "rgb(204, 204, 204)",
+        "type": "color"
+      },
+      "color-5": {
+        "value": "rgb(40, 167, 69)",
+        "type": "color"
+      },
+      "color-6": {
+        "value": "rgb(220, 53, 69)",
+        "type": "color"
+      }
+    },
+    "font": {
+      "font-family-0": {
+        "value": "Times New Roman"
+      },
+      "font-family-1": {
+        "value": "Arial"
+      },
+      "font-family-2": {
+        "value": "Arial"
+      }
+    },
+    "spacing": {
+      "spacing-0": {
+        "value": "normal"
+      },
+      "spacing-1": {
+        "value": "16px"
+      },
+      "spacing-2": {
+        "value": "21.44px"
+      },
+      "spacing-3": {
+        "value": "19.92px"
+      },
+      "spacing-4": {
+        "value": "8px"
+      },
+      "spacing-5": {
+        "value": "18.72px"
+      },
+      "spacing-6": {
+        "value": "5px"
+      },
+      "spacing-7": {
+        "value": "10px"
+      }
+    },
+    "radius": {},
+    "shadow": {},
+    "transition": {
+      "transition-0": {
+        "value": "all"
+      }
+    }
+  },
+  "component": {
+    "button": {
+      "base": {}
+    },
+    "input": {
+      "base": {}
+    }
+  }
+}

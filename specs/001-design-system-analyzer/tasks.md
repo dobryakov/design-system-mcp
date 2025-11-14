@@ -82,7 +82,7 @@
 - [X] T025I [P] [US1] Create E2E test for Material-UI component detection in tests/e2e/playwright/analyze-material-ui.test.ts
 - [X] T025J [P] [US1] Create E2E test for minimal page edge case in tests/e2e/playwright/analyze-minimal.test.ts
 - [X] T025K [P] [US1] Create E2E test for error handling (invalid URL, timeout) in tests/e2e/playwright/analyze-errors.test.ts
-- [ ] T025N [P] [US1] Create E2E test for invalid site_name validation (special characters, too long, empty) to ensure incorrect site_name values are rejected on input and don't get into tasks in tests/e2e/playwright/analyze-errors.test.ts
+- [X] T025N [P] [US1] Create E2E test for invalid site_name validation (special characters, too long, empty) to ensure incorrect site_name values are rejected on input and don't get into tasks in tests/e2e/playwright/analyze-errors.test.ts
 - [X] T025L [P] [US1] Create E2E test for job status polling workflow in tests/e2e/playwright/job-status.test.ts
 - [X] T025M [P] [US1] Create E2E test for concurrent job limit enforcement in tests/e2e/playwright/concurrent-jobs.test.ts
 
@@ -130,15 +130,15 @@
 - [X] T065 [US1] Implement service startup validation for MAX_CONCURRENT_ANALYSES (fail if zero/negative/invalid) in src/server.ts
 - [X] T066 [US1] Add structured logging with correlation IDs throughout analysis flow in src/jobs/website-analysis.job.ts
 - [X] T067 [US1] Implement design system file overwrite when same site_name analyzed again in src/jobs/website-analysis.job.ts
-- [ ] T067A [US1] Implement intermediate JSON file saving for extracted elements in designs/`<site-name>`/stage-elements.json in src/services/design-system-extractor.ts
-- [ ] T067B [US1] Implement intermediate JSON file saving for element states in designs/`<site-name>`/stage-element-states.json in src/services/design-system-extractor.ts
-- [ ] T067C [US1] Implement intermediate JSON file saving for library patterns in designs/`<site-name>`/stage-library-patterns.json in src/services/design-system-extractor.ts
-- [ ] T067D [US1] Implement intermediate JSON file saving for DOM structure patterns in designs/`<site-name>`/stage-dom-patterns.json in src/services/design-system-extractor.ts
-- [ ] T067E [US1] Implement intermediate JSON file saving for extracted tokens (colors, fonts, spacing, etc.) in designs/`<site-name>`/stage-tokens.json in src/services/design-system-extractor.ts
-- [ ] T067F [US1] Implement intermediate JSON file saving for analyzed/consolidated tokens in designs/`<site-name>`/stage-analyzed-tokens.json in src/services/design-token-analyzer.ts
-- [ ] T067G [US1] Implement final combination of all intermediate JSON files into design-system.json in src/jobs/website-analysis.job.ts
-- [ ] T067H [US1] Add cleanup of intermediate JSON files after successful combination in src/jobs/website-analysis.job.ts
-- [ ] T067I [US1] Add error handling to preserve intermediate JSON files on failure for debugging in src/jobs/website-analysis.job.ts
+- [X] T067A [US1] Implement intermediate JSON file saving for extracted elements in designs/`<site-name>`/stage-elements.json in src/services/design-system-extractor.ts
+- [X] T067B [US1] Implement intermediate JSON file saving for element states in designs/`<site-name>`/stage-element-states.json in src/services/design-system-extractor.ts
+- [X] T067C [US1] Implement intermediate JSON file saving for library patterns in designs/`<site-name>`/stage-library-patterns.json in src/services/design-system-extractor.ts
+- [X] T067D [US1] Implement intermediate JSON file saving for DOM structure patterns in designs/`<site-name>`/stage-dom-patterns.json in src/services/design-system-extractor.ts
+- [X] T067E [US1] Implement intermediate JSON file saving for extracted tokens (colors, fonts, spacing, etc.) in designs/`<site-name>`/stage-tokens.json in src/services/design-system-extractor.ts
+- [X] T067F [US1] Implement intermediate JSON file saving for analyzed/consolidated tokens in designs/`<site-name>`/stage-analyzed-tokens.json in src/services/design-token-analyzer.ts
+- [X] T067G [US1] Implement final combination of all intermediate JSON files into design-system.json in src/jobs/website-analysis.job.ts
+- [X] T067H [US1] Add cleanup of intermediate JSON files after successful combination in src/jobs/website-analysis.job.ts
+- [X] T067I [US1] Add error handling to preserve intermediate JSON files on failure for debugging in src/jobs/website-analysis.job.ts
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. Users can submit analysis requests, track job status, and receive design system JSON files.
 

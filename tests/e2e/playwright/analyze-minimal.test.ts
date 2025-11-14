@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
-import { TEST_SERVER_URL } from '../../fixtures/server.js';
+import { TEST_SERVER_URL_FOR_API } from '../../fixtures/server.js';
 
 const API_URL = process.env.API_URL || 'http://localhost:3000';
 const API_KEY = process.env.API_KEY || 'test-api-key';
-const TEST_PAGE_URL = `${TEST_SERVER_URL}/fixtures/minimal.html`;
+// Use URL that API container can access (test-server hostname in Docker)
+const TEST_PAGE_URL = `${TEST_SERVER_URL_FOR_API}/fixtures/minimal.html`;
 
 test.describe('Minimal Page Edge Case', () => {
   test('should handle minimal HTML page with basic styling', async ({ request }) => {

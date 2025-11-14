@@ -207,29 +207,109 @@ ssh -L 3001:localhost:3001 user@remote-server
 
 ## Testing
 
+### Test Infrastructure
+
+The testing setup uses two Docker services with the `test` profile:
+
+#### `test-server` Service
+
+**Purpose**: HTTP server that serves test fixture HTML pages for E2E testing.
+
+**What it does**:
+- Runs an Express server on port 3002
+- Serves static HTML files from `tests/fixtures/pages/` directory
+- Provides test fixture pages: `basic.html`, `bootstrap.html`, `material-ui.html`, `minimal.html`
+- Exposes `/health` endpoint for health checks
+- Accessible from API container via Docker network at `http://test-server:3002`
+
+**Why it's needed**:
+- E2E tests submit URLs from this server to the API for analysis
+- The API container (running Playwright) needs to access these pages to analyze them
+- Pages are served over Docker network, allowing API container to fetch them during analysis
+
+**Example**:
+```javascript
+// Test sends this URL to API
+const TEST_PAGE_URL = "http://test-server:3002/fixtures/basic.html";
+// API container opens this URL via Playwright and analyzes the page
+```
+
+#### `test` Service
+
+**Purpose**: Container that runs automated tests (Playwright E2E tests).
+
+**What it does**:
+- Executes Playwright E2E tests via `npm test` command
+- Runs tests from `tests/e2e/playwright/` directory
+- Sends HTTP requests to API container at `http://api:3000`
+- Uses test-server URLs when submitting analysis requests
+- Waits for `redis`, `api`, and `test-server` services to be healthy before starting
+
+**Dependencies**:
+- Requires `redis` service (for API's BullMQ queue)
+- Requires `api` service (to send analysis requests)
+- Requires `test-server` service (to get fixture page URLs)
+
+**Environment Variables**:
+- `API_URL=http://api:3000` - URL for API requests
+- `TEST_SERVER_URL=http://localhost:3002` - URL for test container to access test-server
+- `TEST_SERVER_URL_FOR_API=http://test-server:3002` - URL that API container uses to access test-server
+
 ### Run Unit Tests
 
 ```bash
-docker-compose run --rm test npm run test:unit
+docker-compose --profile test run --rm test npm run test:unit
 ```
 
 ### Run Integration Tests
 
 ```bash
-docker-compose run --rm test npm run test:integration
+docker-compose --profile test run --rm test npm run test:integration
 ```
 
 ### Run E2E Tests
 
 ```bash
-docker-compose run --rm test npm run test:e2e
+# Start required services first
+docker-compose --profile test up -d redis api test-server
+
+# Run E2E tests
+docker-compose --profile test run --rm test npm run test:e2e
 ```
 
 ### Run All Tests
 
 ```bash
-docker-compose run --rm test npm test
+# Start required services first
+docker-compose --profile test up -d redis api test-server
+
+# Run all tests
+docker-compose --profile test run --rm test npm test
 ```
+
+### Test Service Architecture
+
+```
+┌─────────────┐
+│   test      │  ← Runs Playwright E2E tests
+│  (тесты)    │
+└──────┬──────┘
+       │ HTTP requests
+       ↓
+┌─────────────┐
+│     api     │  ← Main API service
+│  (Playwright│     (analyzes pages)
+│   analysis) │
+└──────┬──────┘
+       │ HTTP requests
+       ↓
+┌─────────────┐
+│ test-server │  ← Serves test fixture HTML pages
+│  (fixtures) │
+└─────────────┘
+```
+
+**Note**: Both `test` and `test-server` services use the `test` profile, so they only start when using `docker-compose --profile test`.
 
 ## Troubleshooting
 

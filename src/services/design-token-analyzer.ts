@@ -1,11 +1,13 @@
 import { ExtractedData } from './design-system-extractor.js';
 import { DesignSystem, DesignToken } from '../types/design-system.js';
 import logger from '../utils/logger.js';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 export class DesignTokenAnalyzer {
   private colorSimilarityThreshold = 0.05; // 5% similarity threshold
 
-  analyze(extractedData: ExtractedData, siteName: string): DesignSystem {
+  async analyze(extractedData: ExtractedData, siteName: string, designsPath?: string): Promise<DesignSystem> {
     logger.debug({ siteName }, 'Analyzing design tokens');
 
     // Consolidate colors
@@ -26,6 +28,21 @@ export class DesignTokenAnalyzer {
     // Process transitions
     const transitions = this.processTransitions(Array.from(extractedData.transitions));
 
+    // Build analyzed tokens object
+    const analyzedTokens = {
+      color: colors,
+      font: fonts,
+      spacing: spacing,
+      radius: radius,
+      shadow: shadows,
+      transition: transitions,
+    };
+
+    // Save intermediate: analyzed tokens
+    if (designsPath) {
+      await this.saveAnalyzedTokens(siteName, designsPath, analyzedTokens);
+    }
+
     // Build design system
     const designSystem: DesignSystem = {
       $schema: 'https://design-tokens.org/schema/v1.1.json',
@@ -35,14 +52,7 @@ export class DesignTokenAnalyzer {
         lastModified: new Date().toISOString(),
       },
       group: 'tokens',
-      global: {
-        color: colors,
-        font: fonts,
-        spacing: spacing,
-        radius: radius,
-        shadow: shadows,
-        transition: transitions,
-      },
+      global: analyzedTokens,
     };
 
     // Add component definitions if library patterns detected
@@ -283,6 +293,17 @@ export class DesignTokenAnalyzer {
         // This is a simplified version - in production, you'd extract more properties
       },
     };
+  }
+
+  private async saveAnalyzedTokens(
+    siteName: string,
+    designsPath: string,
+    analyzedTokens: Record<string, Record<string, DesignToken>>
+  ): Promise<void> {
+    const siteDir = path.join(designsPath, siteName);
+    await fs.mkdir(siteDir, { recursive: true });
+    const filePath = path.join(siteDir, 'stage-analyzed-tokens.json');
+    await fs.writeFile(filePath, JSON.stringify(analyzedTokens, null, 2), 'utf-8');
   }
 }
 

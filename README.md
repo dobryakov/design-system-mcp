@@ -82,19 +82,28 @@ npm install
 
 ### Run Tests
 
+Tests run in Docker containers. The test infrastructure includes:
+- **`test-server`**: Serves test fixture HTML pages on port 3002
+- **`test`**: Runs Playwright E2E tests
+
 ```bash
+# Start test infrastructure
+docker-compose --profile test up -d redis api test-server
+
 # All tests
-npm test
+docker-compose --profile test run --rm test npm test
 
 # Unit tests only
-npm run test:unit
+docker-compose --profile test run --rm test npm run test:unit
 
 # Integration tests
-npm run test:integration
+docker-compose --profile test run --rm test npm run test:integration
 
 # E2E tests
-npm run test:e2e
+docker-compose --profile test run --rm test npm run test:e2e
 ```
+
+See [Quickstart Guide - Testing](./specs/001-design-system-analyzer/quickstart.md#testing) for detailed information about test services.
 
 ### Linting and Formatting
 

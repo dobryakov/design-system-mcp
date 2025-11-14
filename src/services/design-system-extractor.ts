@@ -1,4 +1,6 @@
 import { Page } from 'playwright';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 export interface ElementStateStyles {
   hover?: Record<string, string>;
@@ -49,18 +51,43 @@ export class DesignSystemExtractor {
     };
   }
 
-  async extract(): Promise<ExtractedData> {
+  async extract(siteName?: string, designsPath?: string): Promise<ExtractedData> {
     // Extract all elements
     await this.extractElements();
+
+    // Save intermediate: extracted elements
+    if (siteName && designsPath) {
+      await this.saveExtractedElements(siteName, designsPath);
+    }
 
     // Extract element states
     await this.extractElementStates();
 
+    // Save intermediate: element states
+    if (siteName && designsPath) {
+      await this.saveElementStates(siteName, designsPath);
+    }
+
     // Extract library patterns
     await this.extractLibraryPatterns();
 
+    // Save intermediate: library patterns
+    if (siteName && designsPath) {
+      await this.saveLibraryPatterns(siteName, designsPath);
+    }
+
     // Extract DOM structure patterns
     await this.extractDOMStructurePatterns();
+
+    // Save intermediate: DOM structure patterns
+    if (siteName && designsPath) {
+      await this.saveDOMPatterns(siteName, designsPath);
+    }
+
+    // Save intermediate: extracted tokens
+    if (siteName && designsPath) {
+      await this.saveExtractedTokens(siteName, designsPath);
+    }
 
     return this.extractedData;
   }
@@ -429,6 +456,61 @@ export class DesignSystemExtractor {
     }
 
     this.extractedData.libraryPatterns = patterns;
+  }
+
+  private async saveExtractedElements(siteName: string, designsPath: string): Promise<void> {
+    const siteDir = path.join(designsPath, siteName);
+    await fs.mkdir(siteDir, { recursive: true });
+    const filePath = path.join(siteDir, 'stage-elements.json');
+    await fs.writeFile(filePath, JSON.stringify(this.extractedData.elements, null, 2), 'utf-8');
+  }
+
+  private async saveElementStates(siteName: string, designsPath: string): Promise<void> {
+    const siteDir = path.join(designsPath, siteName);
+    await fs.mkdir(siteDir, { recursive: true });
+    const filePath = path.join(siteDir, 'stage-element-states.json');
+    const elementStates = this.extractedData.elements
+      .filter((el) => el.stateStyles && Object.keys(el.stateStyles).length > 0)
+      .map((el) => ({
+        tag: el.tag,
+        classes: el.classes,
+        id: el.id,
+        stateStyles: el.stateStyles,
+      }));
+    await fs.writeFile(filePath, JSON.stringify(elementStates, null, 2), 'utf-8');
+  }
+
+  private async saveLibraryPatterns(siteName: string, designsPath: string): Promise<void> {
+    const siteDir = path.join(designsPath, siteName);
+    await fs.mkdir(siteDir, { recursive: true });
+    const filePath = path.join(siteDir, 'stage-library-patterns.json');
+    await fs.writeFile(filePath, JSON.stringify(this.extractedData.libraryPatterns, null, 2), 'utf-8');
+  }
+
+  private async saveDOMPatterns(siteName: string, designsPath: string): Promise<void> {
+    const siteDir = path.join(designsPath, siteName);
+    await fs.mkdir(siteDir, { recursive: true });
+    const filePath = path.join(siteDir, 'stage-dom-patterns.json');
+    // Extract DOM patterns from library patterns (structure patterns)
+    const domPatterns = this.extractedData.libraryPatterns.filter((pattern) =>
+      pattern.includes('-structure')
+    );
+    await fs.writeFile(filePath, JSON.stringify(domPatterns, null, 2), 'utf-8');
+  }
+
+  private async saveExtractedTokens(siteName: string, designsPath: string): Promise<void> {
+    const siteDir = path.join(designsPath, siteName);
+    await fs.mkdir(siteDir, { recursive: true });
+    const filePath = path.join(siteDir, 'stage-tokens.json');
+    const tokens = {
+      colors: Array.from(this.extractedData.colors),
+      fonts: Array.from(this.extractedData.fonts),
+      spacing: Array.from(this.extractedData.spacing),
+      borderRadius: Array.from(this.extractedData.borderRadius),
+      boxShadow: Array.from(this.extractedData.boxShadow),
+      transitions: Array.from(this.extractedData.transitions),
+    };
+    await fs.writeFile(filePath, JSON.stringify(tokens, null, 2), 'utf-8');
   }
 }
 

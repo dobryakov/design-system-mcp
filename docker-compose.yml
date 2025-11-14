@@ -32,6 +32,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - PORT=${PORT:-3000}
+      - TEST_SERVER_URL=${TEST_SERVER_URL:-http://test-server:3002}
     volumes:
       - ./designs:/app/designs
       - ./logs:/app/logs
@@ -44,6 +45,31 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    networks:
+      - default
+
+  test-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: design-system-test-server
+    environment:
+      - RUN_TEST_SERVER=true
+    command: node scripts/start-test-server.js
+    ports:
+      - "3002:3002"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    working_dir: /app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    profiles:
+      - test
 
   test:
     build:
@@ -52,7 +78,7 @@ services:
     container_name: design-system-test
     environment:
       - NODE_ENV=test
-      - API_KEYS=test-api-key
+      - API_KEYS=your-api-key-1
       - MAX_CONCURRENT_ANALYSES=5
       - MCP_PROTOCOL=http
       - MCP_PORT=3001
@@ -60,12 +86,19 @@ services:
       - LOG_LEVEL=debug
       - REDIS_URL=redis://redis:6379
       - PORT=3000
+      - TEST_SERVER_URL=http://localhost:3002
+      - TEST_SERVER_URL_FOR_API=http://test-server:3002
+      - API_URL=http://api:3000
     volumes:
       - .:/app
       - /app/node_modules
     depends_on:
-      - redis
-      - api
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+      test-server:
+        condition: service_healthy
     command: npm test
     profiles:
       - test

@@ -1,0 +1,164 @@
+{
+  "$schema": "https://design-tokens.org/schema/v1.1.json",
+  "metadata": {
+    "name": "test-bootstrap-1763129828854",
+    "version": "1.0.0",
+    "lastModified": "2025-11-14T14:17:23.585Z"
+  },
+  "group": "tokens",
+  "global": {
+    "color": {
+      "color-dark-0": {
+        "value": "rgb(0, 0, 0)",
+        "type": "color"
+      },
+      "color-dark-1": {
+        "value": "rgb(33, 37, 41)",
+        "type": "color"
+      },
+      "color-light-2": {
+        "value": "rgb(255, 255, 255)",
+        "type": "color"
+      },
+      "color-3": {
+        "value": "rgb(13, 110, 253)",
+        "type": "color"
+      },
+      "color-4": {
+        "value": "rgb(108, 117, 125)",
+        "type": "color"
+      },
+      "color-dark-5": {
+        "value": "rgb(25, 135, 84)",
+        "type": "color"
+      },
+      "color-6": {
+        "value": "rgb(220, 53, 69)",
+        "type": "color"
+      },
+      "color-7": {
+        "value": "rgb(255, 193, 7)",
+        "type": "color"
+      },
+      "color-8": {
+        "value": "rgb(13, 202, 240)",
+        "type": "color"
+      },
+      "color-light-9": {
+        "value": "rgb(222, 226, 230)",
+        "type": "color"
+      },
+      "color-dark-10": {
+        "value": "rgb(5, 44, 101)",
+        "type": "color"
+      },
+      "color-light-11": {
+        "value": "rgb(207, 226, 255)",
+        "type": "color"
+      },
+      "color-light-12": {
+        "value": "rgb(158, 197, 254)",
+        "type": "color"
+      },
+      "color-dark-13": {
+        "value": "rgb(10, 54, 34)",
+        "type": "color"
+      },
+      "color-light-14": {
+        "value": "rgb(163, 207, 187)",
+        "type": "color"
+      },
+      "color-dark-15": {
+        "value": "rgb(88, 21, 28)",
+        "type": "color"
+      },
+      "color-light-16": {
+        "value": "rgb(248, 215, 218)",
+        "type": "color"
+      },
+      "color-light-17": {
+        "value": "rgb(241, 174, 181)",
+        "type": "color"
+      },
+      "color-18": {
+        "value": "rgb(11, 96, 219)",
+        "type": "color"
+      },
+      "color-19": {
+        "value": "rgb(94, 101, 108)",
+        "type": "color"
+      },
+      "color-dark-20": {
+        "value": "rgb(21, 114, 71)",
+        "type": "color"
+      },
+      "color-21": {
+        "value": "rgb(195, 47, 61)",
+        "type": "color"
+      },
+      "color-22": {
+        "value": "rgb(255, 201, 40)",
+        "type": "color"
+      },
+      "color-23": {
+        "value": "rgb(48, 210, 242)",
+        "type": "color"
+      }
+    },
+    "font": {
+      "font-family-0": {
+        "value": "Times New Roman"
+      },
+      "font-family-1": {
+        "value": "system-ui"
+      }
+    },
+    "spacing": {
+      "spacing-0": {
+        "value": "normal"
+      },
+      "spacing-1": {
+        "value": "48px"
+      },
+      "spacing-2": {
+        "value": "300px"
+      },
+      "spacing-3": {
+        "value": "12px"
+      },
+      "spacing-4": {
+        "value": "8px"
+      },
+      "spacing-5": {
+        "value": "24px"
+      },
+      "spacing-6": {
+        "value": "6px"
+      },
+      "spacing-7": {
+        "value": "16px"
+      }
+    },
+    "radius": {},
+    "shadow": {},
+    "transition": {
+      "transition-0": {
+        "value": "all"
+      },
+      "transition-1": {
+        "value": "color, background-color, border-color, box-shadow"
+      },
+      "transition-2": {
+        "value": "border-color, box-shadow"
+      }
+    }
+  },
+  "component": {
+    "button": {
+      "base": {}
+    },
+    "input": {
+      "base": {}
+    }
+  }
+}

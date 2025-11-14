@@ -1,0 +1,96 @@
+{
+  "$schema": "https://design-tokens.org/schema/v1.1.json",
+  "metadata": {
+    "name": "test-material-ui-1763129839407",
+    "version": "1.0.0",
+    "lastModified": "2025-11-14T14:17:26.118Z"
+  },
+  "group": "tokens",
+  "global": {
+    "color": {
+      "color-dark-0": {
+        "value": "rgb(0, 0, 0)",
+        "type": "color"
+      },
+      "color-light-1": {
+        "value": "rgb(255, 255, 255)",
+        "type": "color"
+      },
+      "color-2": {
+        "value": "rgb(25, 118, 210)",
+        "type": "color"
+      },
+      "color-3": {
+        "value": "rgb(220, 0, 78)",
+        "type": "color"
+      },
+      "color-light-4": {
+        "value": "rgb(239, 239, 239)",
+        "type": "color"
+      }
+    },
+    "font": {
+      "font-family-0": {
+        "value": "Times New Roman"
+      },
+      "font-family-1": {
+        "value": "Roboto"
+      },
+      "font-family-2": {
+        "value": "Arial"
+      },
+      "font-family-3": {
+        "value": "Material Icons"
+      }
+    },
+    "spacing": {
+      "spacing-0": {
+        "value": "normal"
+      },
+      "spacing-1": {
+        "value": "20px"
+      },
+      "spacing-2": {
+        "value": "21.44px"
+      },
+      "spacing-3": {
+        "value": "19.92px"
+      },
+      "spacing-4": {
+        "value": "8px"
+      },
+      "spacing-5": {
+        "value": "10px"
+      },
+      "spacing-6": {
+        "value": "24px"
+      },
+      "spacing-7": {
+        "value": "16px"
+      },
+      "spacing-8": {
+        "value": "12px"
+      }
+    },
+    "radius": {},
+    "shadow": {
+      "shadow-0": {
+        "value": "rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px",
+        "type": "dropShadow"
+      }
+    },
+    "transition": {
+      "transition-0": {
+        "value": "all"
+      }
+    }
+  },
+  "component": {
+    "button": {
+      "base": {}
+    },
+    "input": {
+      "base": {}
+    }
+  }
+}
