@@ -42,9 +42,10 @@ export async function getDesignTokens(siteName: string): Promise<DesignSystem['g
 /**
  * Get patterns from design system (components)
  */
-export async function getPatterns(siteName: string): Promise<DesignSystem['component'] | undefined> {
+export async function getPatterns(siteName: string): Promise<DesignSystem['component']> {
   const designSystem = await loadDesignSystem(siteName);
-  return designSystem.component;
+  // Always return an object, even if component is undefined
+  return designSystem.component || {};
 }
 
 /**
