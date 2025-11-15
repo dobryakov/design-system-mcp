@@ -98,6 +98,8 @@
 - [X] T033 [US1] Implement job status deletion after completion/failure in src/routes/status.ts
 - [X] T034 [US1] Create website analysis job processor in src/jobs/website-analysis.job.ts
 - [X] T035 [US1] Implement Playwright browser launch and navigation in src/jobs/website-analysis.job.ts
+- [ ] T035A [US1] Implement n8n webhook integration: if N8N_WEBHOOK_URL, N8N_WEBHOOK_USERNAME, and N8N_WEBHOOK_PASSWORD are set in .env, send POST request to n8n webhook with URL in JSON body ({"url":"..."}) using Basic Auth instead of using Playwright directly. The webhook returns a ready-made design system JSON, which should be saved directly to designs/`<site-name>`/design-system.json. Skip all analysis and token extraction steps (Playwright, DesignSystemExtractor, DesignTokenAnalyzer) when using webhook mode in src/jobs/website-analysis.job.ts
+- [ ] T035B [US1] Implement validation for webhook response: if the JSON received from n8n webhook does not meet project requirements (design system schema validation), mark the job as failed and log all validation errors with structured logging in src/jobs/website-analysis.job.ts
 - [X] T036 [US1] Create design system extractor service in src/services/design-system-extractor.ts
 - [X] T037 [US1] Implement DOM traversal and element identification in src/services/design-system-extractor.ts
 - [X] T038 [US1] Implement CSS selector analysis for component detection in src/services/design-system-extractor.ts
