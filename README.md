@@ -1,6 +1,46 @@
-# Design System Analyzer
+# design-system-mcp
 
-A Node.js/TypeScript microservice that extracts design systems from websites using Playwright automation and provides an MCP (Model Context Protocol) interface for Cursor IDE integration.
+An **async MCP server** that extracts design tokens (colors, typography, spacing, components) from a live website and serves them to an AI IDE (Cursor). Long operations go into a job queue and return immediately — no blocking tool calls.
+
+## Why async
+
+A naive MCP server does the work synchronously: the agent calls a tool and waits. Fine for fast operations; wrong for long ones (browser automation, page crawling, ML inference) — you get timeouts, no horizontal scaling, and one heavy request holding a connection. This server splits **submit** from **result**: submit returns a job ID instantly, status is polled separately.
+
+## Architecture
+
+- **Submit returns a job ID immediately**, non-blocking; status is polled by ID.
+- **Playwright in a container** does the actual site analysis, isolated — the host's `node_modules` is explicitly excluded from the image.
+- **Redis under the queue** — task persistence and concurrency (`MAX_CONCURRENT_ANALYSES`, default 5).
+- **HTTP API on port 3000** (`PORT`), **MCP on port 3001** (`MCP_PORT`): HTTP / HTTPS / SSH tunnel — flexible deploy and Cursor integration.
+
+## Job lifecycle
+
+```
+POST /analyze              → 202 {"job_id": "…", "status": "pending"}
+GET  /status/<job_id>      → 200 {"status": "in-progress", …}
+GET  /status/<job_id>      → 200 {"status": "completed", "result_location": "designs/…/design-system.json"}
+GET  /status/<job_id>      → 404   # status key is dropped ~5s after completed/failed
+```
+
+The result itself is a JSON file on disk (`result_location`), not the status payload. After completion the Redis status key is deleted on a short delay: a later poll returns 404 (completed, failed, or never existed). Collect `result_location` while the job is still `completed`, or read the file under `designs/`.
+
+## Quickstart
+
+```bash
+cp .env.example .env          # set API_KEYS, PORT, MCP_PORT, MCP_PROTOCOL, etc.
+docker-compose up --build     # redis + api (ports 3000 and 3001)
+curl http://localhost:3000/health
+# point Cursor's MCP config at http://localhost:3001 (see below)
+```
+
+## Stack
+
+TypeScript · Docker / Compose · Redis · Playwright (E2E) · Jest.
+
+## Trade-offs (by design)
+
+- **404 after completion.** Job status is deleted shortly after the worker marks `completed` or `failed`. No long-lived job history in Redis — poll until you see `completed` (and `result_location`), do not come back “some time later” for status.
+- **Max 5 concurrent** (`MAX_CONCURRENT_ANALYSES`) protects against overload; under a spike, jobs queue — the client needs a backpressure contract.
 
 ## Features
 
@@ -10,40 +50,11 @@ A Node.js/TypeScript microservice that extracts design systems from websites usi
 - **CLI Support**: Command-line interface for triggering analyses
 - **Docker Ready**: Fully containerized with docker-compose
 
-## Quick Start
-
-### Prerequisites
-
-- Docker and Docker Compose installed
-- At least 4GB RAM available for Docker containers
-
-### Setup
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd design-system-mcp
-```
-
-2. Configure environment:
-```bash
-cp .env.example .env
-# Edit .env and set your API keys
-```
-
-3. Build and start services:
-```bash
-docker-compose up --build
-```
-
-4. Verify health:
-```bash
-curl http://localhost:3000/health
-```
-
 ## Usage
 
 ### API Endpoints
+
+HTTP API listens on **port 3000** by default. Send `X-API-Key` on `/analyze` and `/status`.
 
 #### Submit Analysis Request
 
@@ -70,8 +81,6 @@ curl -X POST http://localhost:3000/analyze \
 ```
 
 #### Check Job Status
-
-Get the current status of an analysis job.
 
 ```bash
 curl http://localhost:3000/status/550e8400-e29b-41d4-a716-446655440000 \
@@ -105,11 +114,9 @@ curl http://localhost:3000/status/550e8400-e29b-41d4-a716-446655440000 \
 ```
 
 **Response (404 Not Found):**
-Job status is deleted immediately after completion. If you get 404, the job has completed or failed.
+Job status is deleted shortly after completion or failure. If you get 404, the job has completed, failed, or never existed.
 
 #### Health Check
-
-Check service health and queue status.
 
 ```bash
 curl http://localhost:3000/health
@@ -180,7 +187,7 @@ All endpoints return standard error responses:
 
 ## MCP Server Configuration
 
-The MCP (Model Context Protocol) server allows Cursor IDE to query design systems directly. The server runs on port 3001 by default (configurable via `MCP_PORT` environment variable).
+The MCP (Model Context Protocol) server allows Cursor IDE to query design systems directly. The server runs on port 3001 by default (configurable via `MCP_PORT`).
 
 ### For Cursor IDE (HTTP)
 
@@ -242,7 +249,7 @@ ssh -L 3001:localhost:3001 user@remote-server
 - **Unauthorized**: Check that your API key matches the `API_KEYS` environment variable
 - **Timeout**: Ensure network connectivity and firewall rules allow access to the MCP port
 
-See [Quickstart Guide](./specs/001-design-system-analyzer/quickstart.md) for more detailed configuration examples.
+See [Quickstart Guide](./specs/001-design-system-analyzer/quickstart.md) and [MCP_USAGE.md](./MCP_USAGE.md) for more detailed configuration examples.
 
 ## Development
 
@@ -256,7 +263,7 @@ If you want to develop locally without Docker:
 npm install
 ```
 
-**Important**: 
+**Important**:
 - `node_modules` on the host is not used by containers
 - Test containers use isolated `node_modules` via anonymous Docker volumes
 - The `api` container uses `node_modules` from the Docker image (production dependencies only)
@@ -310,4 +317,3 @@ npm run format
 ## License
 
 MIT
-
